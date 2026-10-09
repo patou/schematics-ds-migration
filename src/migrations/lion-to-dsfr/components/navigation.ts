@@ -1,5 +1,5 @@
 import { escapeAttributeValue } from '../../../core/html/attribute';
-import { ElementNode, elementChildren } from '../../../core/html/parser';
+import { ElementNode, elementChildren, HtmlNode } from '../../../core/html/parser';
 import { ComponentMapping } from '../../../core/types';
 import { shorten, TransformContext } from '../../../core/template-migrator';
 import { dsfr, eventValue, reindent, stripSlot } from '../shared';
@@ -7,29 +7,63 @@ import { dsfr, eventValue, reindent, stripSlot } from '../shared';
 interface Pair {
   head: ElementNode;
   body?: ElementNode;
+  /** L'élément est-il dans un bloc de contrôle (@for, @if, ...) ? */
+  inBlock: boolean;
 }
 
-/** Associe dans l'ordre les éléments des slots `headSlot` / `bodySlot` et signale le reste. */
-function pairs(el: ElementNode, ctx: TransformContext, headSlot: string, bodySlot: string, target: string): Pair[] {
-  const heads = ctx.slotted(el, headSlot);
-  const bodies = ctx.slotted(el, bodySlot);
-  if ([...heads, ...bodies].some((c) => c.attrs.some((a) => a.name.startsWith('*'))) || el.children.some((c) => c.type === 'text' && /@(for|if)\b/.test(c.value))) {
-    ctx.todo(`Éléments générés dynamiquement dans <${el.name}> : vérifiez la conversion en <${target}>.`);
-  }
-  for (const other of elementChildren(el).filter((c) => !heads.includes(c) && !bodies.includes(c))) {
-    ctx.todo(`Contenu non supporté dans <${target}> : ${shorten(ctx.raw(other))}`);
-  }
-  if (heads.length !== bodies.length) {
-    ctx.todo(`<${el.name}> : ${heads.length} slot(s) "${headSlot}" pour ${bodies.length} slot(s) "${bodySlot}", vérifiez l’association.`);
-  }
-  return heads.map((head, i) => ({ head, body: bodies[i] }));
+const slotOf = (node: HtmlNode): string | undefined =>
+  node.type === 'element' ? node.attrs.find((a) => a.name === 'slot')?.value : undefined;
+
+/** Variation de profondeur des blocs de contrôle (`@for (...) {` / `}`) dans un texte. */
+function blockDelta(text: string): number {
+  const code = text.replace(/\{\{[\s\S]*?\}\}/g, '');
+  return (code.match(/\{/g) ?? []).length - (code.match(/\}/g) ?? []).length;
 }
 
-/** Indentation des enfants (celle du premier enfant élément, sinon parent + 2 espaces). */
-function childIndent(el: ElementNode, ctx: TransformContext): string {
-  const first = elementChildren(el)[0];
-  const indent = first ? ctx.indent(first) : '';
-  return indent.length > ctx.indent(el).length ? indent : `${ctx.indent(el)}  `;
+/**
+ * Parcourt les enfants dans l'ordre : chaque élément `headSlot` est associé à l'élément `bodySlot` qui le suit
+ * et remplacé par `renderItem`. Le reste (texte, blocs @for / @if, commentaires) est conservé.
+ */
+function renderPairs(
+  el: ElementNode,
+  ctx: TransformContext,
+  headSlot: string,
+  bodySlot: string,
+  target: string,
+  renderItem: (pair: Pair) => string,
+): string {
+  const children = el.children;
+  let out = '';
+  let depth = 0;
+  for (let i = 0; i < children.length; i++) {
+    const child = children[i];
+    if (child.type !== 'element') {
+      if (child.type === 'text') depth += blockDelta(child.value);
+      out += ctx.raw(child);
+      continue;
+    }
+    const slot = slotOf(child);
+    if (child.attrs.some((a) => a.name.startsWith('*'))) {
+      ctx.todo(`Directive structurelle sur un slot de <${el.name}> : utilisez un bloc @for englobant (${shorten(ctx.raw(child))}).`);
+    }
+    if (slot === headSlot) {
+      let j = i + 1;
+      while (j < children.length && children[j].type === 'text' && /^\s*$/.test((children[j] as { value: string }).value)) j++;
+      const next = children[j];
+      const body = next && slotOf(next) === bodySlot ? (next as ElementNode) : undefined;
+      if (!body) ctx.todo(`Slot "${headSlot}" sans slot "${bodySlot}" associé dans <${el.name}> : ${shorten(ctx.raw(child))}`);
+      out += renderItem({ head: child, body, inBlock: depth > 0 });
+      if (body) i = j;
+      continue;
+    }
+    if (slot === bodySlot) {
+      ctx.todo(`Slot "${bodySlot}" sans slot "${headSlot}" associé dans <${el.name}> : ${shorten(ctx.raw(child))}`);
+    } else {
+      ctx.todo(`Contenu non supporté dans <${target}> : ${shorten(ctx.raw(child))}`);
+    }
+    out += ctx.render(child);
+  }
+  return out;
 }
 
 /** Libellé (texte) d'un élément d'en-tête ; signale le contenu riche. */
@@ -40,24 +74,27 @@ function headingText(head: ElementNode, ctx: TransformContext, attr: string): st
 }
 
 /** Corps d'un onglet / accordéon : l'élément de slot est conservé (sans l'attribut slot). */
-function body(pair: Pair, ctx: TransformContext, slot: string, inner: string): string {
+function body(pair: Pair, ctx: TransformContext, slot: string): string {
   if (!pair.body) return '';
+  const indent = ctx.indent(pair.head);
   const html = stripSlot(ctx.render(pair.body), slot);
-  return `\n${inner}  ${reindent(html, ctx.indent(pair.body), `${inner}  `)}\n${inner}`;
+  return `\n${indent}  ${reindent(html, ctx.indent(pair.body), `${indent}  `)}\n${indent}`;
 }
 
 function tabs(el: ElementNode, ctx: TransformContext): string {
   const attrs = ctx.convertAttributes(el);
-  const inner = childIndent(el, ctx);
-  let content = '';
-  for (const pair of pairs(el, ctx, 'tab', 'panel', 'dsfr-tabs')) {
-    const tabAttrs = [` tabId="${ctx.uniqueId('tab')}"`, ` label="${headingText(pair.head, ctx, 'label')}"`];
+  const content = renderPairs(el, ctx, 'tab', 'panel', 'dsfr-tabs', (pair) => {
+    const id = ctx.uniqueId('tab');
+    if (pair.inBlock) {
+      ctx.todo(`Onglet généré dans un bloc de contrôle : rendez tabId unique (ex : tabId="${id}-{{ $index }}").`);
+    }
+    const tabAttrs = [` tabId="${id}"`, ` label="${headingText(pair.head, ctx, 'label')}"`];
     const disabled = ctx.attr(pair.head, 'disabled');
     if (disabled) tabAttrs.push(disabled.kind === 'static' ? ' [disabled]="true"' : ` [disabled]="${disabled.raw.value}"`);
-    content += `\n${inner}${ctx.buildElement('dsfr-tab', tabAttrs, body(pair, ctx, 'panel', inner))}`;
-  }
+    return ctx.buildElement('dsfr-tab', tabAttrs, body(pair, ctx, 'panel'));
+  });
   ctx.addImport(dsfr('DsfrTabComponent'));
-  return ctx.buildElement('dsfr-tabs', attrs, content ? `${content}\n${ctx.indent(el)}` : '', el);
+  return ctx.buildElement('dsfr-tabs', attrs, el.selfClosing ? undefined : content, el);
 }
 
 function headingLevel(head: ElementNode): string | undefined {
@@ -65,32 +102,35 @@ function headingLevel(head: ElementNode): string | undefined {
   return match ? `H${match[1]}` : undefined;
 }
 
-function accordionItem(pair: Pair, ctx: TransformContext, inner: string, extra: string[] = []): string {
+function accordionItem(pair: Pair, ctx: TransformContext, extra: string[] = []): string {
   const attrs = [` heading="${headingText(pair.head, ctx, 'heading')}"`];
   const level = headingLevel(pair.head);
   if (level) attrs.push(` headingLevel="${level}"`);
   attrs.push(...extra);
-  return ctx.buildElement('dsfr-accordion', attrs, body(pair, ctx, 'content', inner));
+  return ctx.buildElement('dsfr-accordion', attrs, body(pair, ctx, 'content'));
 }
 
 function accordion(el: ElementNode, ctx: TransformContext): string {
   const attrs = ctx.convertAttributes(el, undefined, { exclude: ['exclusive'] });
   if (!ctx.attr(el, 'exclusive')) attrs.push(' [ungroup]="true"');
-  const inner = childIndent(el, ctx);
-  const items = pairs(el, ctx, 'invoker', 'content', 'dsfr-accordions-group').map(
-    (pair) => `\n${inner}${accordionItem(pair, ctx, inner)}`,
-  );
+  const content = renderPairs(el, ctx, 'invoker', 'content', 'dsfr-accordions-group', (pair) => accordionItem(pair, ctx));
   ctx.addImport(dsfr('DsfrAccordionComponent'));
-  return ctx.buildElement('dsfr-accordions-group', attrs, items.length ? `${items.join('')}\n${ctx.indent(el)}` : '', el);
+  return ctx.buildElement('dsfr-accordions-group', attrs, el.selfClosing ? undefined : content, el);
 }
 
 function collapsible(el: ElementNode, ctx: TransformContext): string {
   const attrs = ctx.convertAttributes(el);
-  const [pair, ...rest] = pairs(el, ctx, 'invoker', 'content', 'dsfr-accordion');
-  if (rest.length) ctx.todo('Plusieurs invokers dans lion-collapsible : seul le premier est converti.');
-  if (!pair) return ctx.buildElement('dsfr-accordion', attrs, '', el);
-  const html = accordionItem(pair, ctx, ctx.indent(el), attrs);
-  return html;
+  const heads = ctx.slotted(el, 'invoker');
+  if (heads.length > 1) ctx.todo('Plusieurs invokers dans lion-collapsible : seul le premier est converti.');
+  for (const other of elementChildren(el).filter((c) => slotOf(c) !== 'invoker' && slotOf(c) !== 'content')) {
+    ctx.todo(`Contenu non supporté dans <dsfr-accordion> : ${shorten(ctx.raw(other))}`);
+  }
+  const head = heads[0];
+  if (!head) return ctx.buildElement('dsfr-accordion', attrs, '', el);
+  const content = ctx.slotted(el, 'content')[0];
+  const html = accordionItem({ head, body: content, inBlock: false }, ctx, attrs);
+  // L'élément remplace le collapsible : réaligne le corps sur l'indentation du collapsible.
+  return reindent(html, ctx.indent(head), ctx.indent(el));
 }
 
 /** Incrément 6 : navigation et affichage. */

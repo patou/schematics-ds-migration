@@ -62,6 +62,46 @@ describe('Lion -> DSFR : navigation et affichage', () => {
     expect(result.imports.map((i) => i.name)).toEqual(['DsfrAccordionsGroupComponent', 'DsfrAccordionComponent']);
   });
 
+  it('lion-accordion : conserve les blocs @for / @if', () => {
+    const result = lion(
+      [
+        '<lion-accordion>',
+        '  @for (p of products; track p.id) {',
+        '    <h3 slot="invoker"><button>{{ p.name }}</button></h3>',
+        '    <p slot="content">{{ p.description }}</p>',
+        '  }',
+        '</lion-accordion>',
+      ].join('\n'),
+    );
+    expect(result.content).toBe(
+      [
+        '<dsfr-accordions-group [ungroup]="true">',
+        '  @for (p of products; track p.id) {',
+        '    <dsfr-accordion heading="{{ p.name }}" headingLevel="H3">',
+        '      <p>{{ p.description }}</p>',
+        '    </dsfr-accordion>',
+        '  }',
+        '</dsfr-accordions-group>',
+      ].join('\n'),
+    );
+    expect(result.todos).toEqual([]);
+  });
+
+  it('lion-tabs dans un @for : TODO sur l’unicité de tabId', () => {
+    const result = lion(
+      '<lion-tabs>@for (t of tabs; track t) {<button slot="tab">{{ t }}</button><p slot="panel">x</p>}</lion-tabs>',
+    );
+    expect(result.content).toContain('@for (t of tabs; track t) {<dsfr-tab tabId="tab-1" label="{{ t }}">');
+    expect(result.todos).toHaveLength(1);
+    expect(result.todos[0]).toContain('{{ $index }}');
+  });
+
+  it('conserve le contenu non supporté avec un TODO', () => {
+    const result = lion('<lion-accordion exclusive><p>Intro</p></lion-accordion>');
+    expect(result.content).toContain('<dsfr-accordions-group><p>Intro</p></dsfr-accordions-group>');
+    expect(result.todos).toHaveLength(1);
+  });
+
   it('lion-accordion exclusive : groupe DSFR par défaut', () => {
     expect(toDsfr('<lion-accordion exclusive></lion-accordion>')).toBe('<dsfr-accordions-group></dsfr-accordions-group>');
   });

@@ -59,6 +59,14 @@ describe('ts-utils', () => {
       expect(add(`{\n  imports: [\n    A,\n    B\n  ]\n}`, ['C'])).toContain('    A,\n    B,\n    C\n');
     });
 
+    it('passe à la ligne au-delà de 100 caractères', () => {
+      const names = ['DsfrFormInputComponent', 'DsfrFormSelectComponent', 'DsfrFormRadioComponent', 'DsfrButtonComponent'];
+      expect(add(`{\n  selector: 'x',\n}`, names)).toContain(
+        `{\n  imports: [\n    DsfrFormInputComponent,\n    DsfrFormSelectComponent,\n    DsfrFormRadioComponent,\n    DsfrButtonComponent,\n  ],\n  selector: 'x',\n}`,
+      );
+      expect(add(`{\n  imports: [FormsModule],\n}`, names)).toContain(`  imports: [\n    FormsModule,\n    DsfrFormInputComponent,`);
+    });
+
     it('crée la propriété en tête de l’objet', () => {
       expect(add(`{\n  selector: 'x',\n}`, ['A'])).toContain(`{\n  imports: [A],\n  selector: 'x',\n}`);
       expect(add(`{}`, ['A'])).toContain('{ imports: [A] }');
@@ -102,6 +110,18 @@ describe('ts-utils', () => {
       expect(out).toContain(`import { A, B } from 'lib';`);
       expect(out).toContain(`import { C } from 'new-lib';`);
       expect(out.indexOf('new-lib')).toBeLessThan(out.indexOf('const a'));
+    });
+
+    it('addNamedImports passe à la ligne au-delà de 100 caractères', () => {
+      const names = ['DsfrFormInputComponent', 'DsfrFormSelectComponent', 'DsfrFormRadioComponent', 'DsfrButtonComponent'];
+      const text = `import { A } from 'a';\n`;
+      expect(edit(text, (sf) => addNamedImports(sf, names.map((name) => ({ name, from: '@edugouvfr/ngx-dsfr' }))))).toBe(
+        `import { A } from 'a';\nimport {\n  ${names.join(',\n  ')},\n} from '@edugouvfr/ngx-dsfr';\n`,
+      );
+      const existing = `import {\n  DsfrAlertComponent,\n} from '@edugouvfr/ngx-dsfr';\n`;
+      expect(edit(existing, (sf) => addNamedImports(sf, [{ name: 'DsfrButtonComponent', from: '@edugouvfr/ngx-dsfr' }]))).toBe(
+        `import {\n  DsfrAlertComponent,\n  DsfrButtonComponent,\n} from '@edugouvfr/ngx-dsfr';\n`,
+      );
     });
 
     it('removeNamedImport retire un symbole ou toute la déclaration', () => {

@@ -6,7 +6,7 @@ export interface RemoveDsSchema {
   /** Préfixe des balises (`my` pour `<my-lion-button>`). */
   prefix?: string;
   /** Supprime même si des balises du DS sont encore présentes. */
-  force?: boolean;
+  ignoreRemaining?: boolean;
   /** N'exécute pas `npm install`. */
   skipInstall?: boolean;
 }

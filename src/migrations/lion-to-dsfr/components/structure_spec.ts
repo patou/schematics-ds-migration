@@ -26,6 +26,12 @@ describe('Lion -> DSFR : structure et dates', () => {
     ]);
   });
 
+  it('lion-fieldset : directive sur sa propre ligne pour les attributs multi-lignes', () => {
+    expect(lion('<lion-fieldset>\n  <lion-input\n    label="Nom"\n  ></lion-input>\n</lion-fieldset>').content).toBe(
+      '<dsfr-form-fieldset>\n  <dsfr-form-input\n    dsfrFieldsetElement\n    label="Nom"\n  ></dsfr-form-input>\n</dsfr-form-fieldset>',
+    );
+  });
+
   it('lion-fieldset : slot label -> legend, name en TODO', () => {
     const result = lion('<lion-fieldset name="address"><span slot="label">Adresse</span></lion-fieldset>');
     expect(result.content).toContain('<dsfr-form-fieldset legend="Adresse"></dsfr-form-fieldset>');

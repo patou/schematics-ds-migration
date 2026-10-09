@@ -20,7 +20,7 @@
       "description": "Préfixe des balises du design system, ex : \"my\" pour <my-lion-button>.",
       "default": ""
     },
-    "force": {
+    "ignoreRemaining": {
       "type": "boolean",
       "description": "Supprime le design system même si des composants sont encore utilisés.",
       "default": false

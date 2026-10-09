@@ -93,8 +93,9 @@ export function addToArrayProperty(
     }
     const start = first.getStart(sf);
     const multiLine = sf.text.slice(obj.getStart(sf), start).includes('\n');
-    const separator = multiLine ? `,\n${lineIndent(sf, start)}` : ', ';
-    return [{ start, end: start, text: `${property}: [${symbols.join(', ')}]${separator}` }];
+    const indent = lineIndent(sf, start);
+    const separator = multiLine ? `,\n${indent}` : ', ';
+    return [{ start, end: start, text: `${property}: ${formatList(symbols, indent, indent.length + property.length + 2)}${separator}` }];
   }
   if (!ts.isArrayLiteralExpression(prop.initializer)) return undefined;
   const array = prop.initializer;
@@ -102,13 +103,33 @@ export function addToArrayProperty(
   const missing = symbols.filter((s) => !existing.has(s));
   if (!missing.length) return [];
   const elements = array.elements;
-  if (!elements.length) {
-    return [{ start: array.getStart(sf) + 1, end: array.getEnd() - 1, text: missing.join(', ') }];
+  const indent = lineIndent(sf, prop.getStart(sf));
+  const column = array.getStart(sf) - (sf.text.lastIndexOf('\n', array.getStart(sf) - 1) + 1);
+  const multiLine = sf.text.slice(array.getStart(sf), array.getEnd()).includes('\n');
+  if (!elements.length || !multiLine) {
+    const all = [...elements.map((e) => e.getText(sf)), ...missing];
+    return [{ start: array.getStart(sf), end: array.getEnd(), text: formatList(all, indent, column) }];
   }
   const last = elements[elements.length - 1];
-  const multiLine = elements.length > 1 && sf.text.slice(elements[0].getEnd(), elements[1].getStart(sf)).includes('\n');
-  const separator = multiLine ? `,\n${lineIndent(sf, last.getStart(sf))}` : ', ';
+  const separator = `,\n${lineIndent(sf, last.getStart(sf))}`;
   return [{ start: last.getEnd(), end: last.getEnd(), text: separator + missing.join(separator) }];
+}
+
+/** Longueur de ligne au-delà de laquelle une liste est présentée sur plusieurs lignes. */
+export const MAX_LINE_LENGTH = 100;
+
+/** `[A, B]` ou, si la ligne est trop longue, un élément par ligne. */
+function formatList(items: string[], indent: string, column: number): string {
+  const inline = `[${items.join(', ')}]`;
+  if (column + inline.length + 1 <= MAX_LINE_LENGTH || items.length < 2) return inline;
+  return `[\n${items.map((i) => `${indent}  ${i},`).join('\n')}\n${indent}]`;
+}
+
+/** `{ A, B }` ou, si la ligne d'import est trop longue, un symbole par ligne. */
+function formatImportList(items: string[], column: number, moduleName: string): string {
+  const inline = `{ ${items.join(', ')} }`;
+  if (column + inline.length + moduleName.length + 9 <= MAX_LINE_LENGTH || items.length < 2) return inline;
+  return `{\n${items.map((i) => `  ${i},`).join('\n')}\n}`;
 }
 
 /** Supprime un symbole d'une propriété tableau ; supprime la propriété si le tableau devient vide. */
@@ -192,14 +213,18 @@ export function addNamedImports(sf: ts.SourceFile, specs: ImportSpec[]): TextEdi
     });
     if (target) {
       const bindings = target.importClause!.namedBindings as ts.NamedImports;
-      if (bindings.elements.length) {
+      const multiLine = bindings.getText(sf).includes('\n');
+      if (bindings.elements.length && multiLine) {
         const last = bindings.elements[bindings.elements.length - 1];
-        edits.push({ start: last.getEnd(), end: last.getEnd(), text: `, ${missing.join(', ')}` });
+        const separator = `,\n${lineIndent(sf, last.getStart(sf))}`;
+        edits.push({ start: last.getEnd(), end: last.getEnd(), text: separator + missing.join(separator) });
       } else {
-        edits.push({ start: bindings.getStart(sf), end: bindings.getEnd(), text: `{ ${missing.join(', ')} }` });
+        const all = [...bindings.elements.map((e) => e.getText(sf)), ...missing];
+        const column = bindings.getStart(sf) - target.getStart(sf);
+        edits.push({ start: bindings.getStart(sf), end: bindings.getEnd(), text: formatImportList(all, column, moduleName) });
       }
     } else {
-      newDeclarations.push(`import { ${missing.join(', ')} } from '${moduleName}';`);
+      newDeclarations.push(`import ${formatImportList(missing, 7, moduleName)} from '${moduleName}';`);
     }
   }
 

@@ -1,8 +1,8 @@
 import { escapeAttributeValue, parseAttribute } from '../../../core/html/attribute';
-import { ElementNode, elementChildren, HtmlNode } from '../../../core/html/parser';
+import { ElementNode, elementChildren } from '../../../core/html/parser';
 import { ComponentMapping } from '../../../core/types';
-import { shorten, TransformContext } from '../../../core/template-migrator';
-import { attrExpression, dsfr, FIELD_ATTRIBUTES, safeExpression, textExpression } from '../shared';
+import { TransformContext } from '../../../core/template-migrator';
+import { attrExpression, dsfr, FIELD_ATTRIBUTES, safeExpression, splitControlFlow, textExpression } from '../shared';
 
 const SELECT_ATTRIBUTES = {
   ...FIELD_ATTRIBUTES,
@@ -18,21 +18,11 @@ function buildOptions(
   state: { placeholder?: string; first: boolean },
 ): string[] {
   const options: string[] = [];
-  if (hasDynamicContent(container)) {
-    ctx.todo(
-      `Options générées dynamiquement dans <${container.name}> : construisez le tableau [options] dans le composant (${shorten(
-        container.children.map((c) => ctx.raw(c)).join(''),
-      )}).`,
-    );
-    return options;
+  const { elements, dynamic } = splitControlFlow(container, ctx);
+  if (dynamic) {
+    ctx.todo(`Options générées dynamiquement : ajoutez-les au tableau [options] dans le composant. Code d’origine : ${dynamic}`);
   }
-  for (const child of elementChildren(container)) {
-    if (child.attrs.some((a) => a.name.startsWith('*'))) {
-      ctx.todo(
-        `Options générées dynamiquement : construisez le tableau [options] dans le composant (${shorten(ctx.raw(child))}).`,
-      );
-      continue;
-    }
+  for (const child of elements) {
     const name = child.name.toLowerCase();
     if (name === 'optgroup') {
       const label = attrExpression(ctx.attr(child, 'label')) ?? "''";
@@ -73,11 +63,6 @@ function buildOptions(
     options.push(`{ ${parts.join(', ')} }`);
   }
   return options;
-}
-
-/** Le conteneur contient-il du texte non vide (blocs @for / @if) ? */
-function hasDynamicContent(el: ElementNode): boolean {
-  return el.children.some((c: HtmlNode) => c.type === 'text' && /@(for|if|switch)\b/.test(c.value));
 }
 
 function selectTransform(optionTag: (ctx: TransformContext) => (el: ElementNode) => boolean) {

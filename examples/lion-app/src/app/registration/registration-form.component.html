@@ -1,0 +1,54 @@
+<lion-form>
+  <form (ngSubmit)="submit()">
+    <lion-fieldset label="Identité" name="identity">
+      <lion-input
+        label="Prénom"
+        name="firstName"
+        [(ngModel)]="model.firstName"
+        required
+      ></lion-input>
+      <lion-input label="Nom" help-text="Tel qu'indiqué sur votre pièce d'identité" name="lastName" [(ngModel)]="model.lastName"></lion-input>
+      <lion-input-date label="Date de naissance" name="birthDate" [(ngModel)]="model.birthDate"></lion-input-date>
+    </lion-fieldset>
+
+    <lion-fieldset label="Contact">
+      <lion-input-email label="E-mail" name="email" [(ngModel)]="model.email"></lion-input-email>
+      <lion-input-tel label="Téléphone" name="phone" [allowedRegions]="['FR', 'BE']" [(ngModel)]="model.phone"></lion-input-tel>
+      <lion-select label="Pays" name="country" [(ngModel)]="model.country">
+        <select slot="input">
+          <option value="">Sélectionnez un pays</option>
+          <option value="fr">France</option>
+          @for (country of countries; track country.code) {
+            <option [value]="country.code">{{ country.name }}</option>
+          }
+        </select>
+      </lion-select>
+      <lion-radio-group label="Moyen de contact préféré" name="contact" [(ngModel)]="model.contact">
+        <lion-radio label="E-mail" choice-value="email"></lion-radio>
+        <lion-radio label="Téléphone" choice-value="phone"></lion-radio>
+        <lion-radio label="Courrier" choice-value="mail" disabled></lion-radio>
+      </lion-radio-group>
+    </lion-fieldset>
+
+    <lion-checkbox-group label="Centres d'intérêt" name="interests">
+      <lion-checkbox label="Sport" name="sport" [(ngModel)]="model.sport"></lion-checkbox>
+      <lion-checkbox label="Musique" name="music" [(ngModel)]="model.music"></lion-checkbox>
+    </lion-checkbox-group>
+
+    <lion-input-range label="Satisfaction" name="satisfaction" min="0" max="10" unit="/10" [(ngModel)]="model.satisfaction"></lion-input-range>
+
+    <lion-textarea label="Commentaire" name="comment" rows="4" max-rows="10" [(ngModel)]="model.comment"></lion-textarea>
+
+    <lion-input-file label="Justificatif" accept=".pdf,.png" (file-list-changed)="onFiles($event)"></lion-input-file>
+
+    <lion-switch label="Recevoir la newsletter" name="newsletter" [(ngModel)]="model.newsletter"></lion-switch>
+    <lion-checkbox name="terms" [(ngModel)]="model.terms">
+      <span slot="label">J'accepte les <b>conditions</b> d'utilisation</span>
+    </lion-checkbox>
+
+    <div class="actions">
+      <lion-button-reset>Effacer</lion-button-reset>
+      <lion-button-submit [disabled]="!model.terms">Envoyer</lion-button-submit>
+    </div>
+  </form>
+</lion-form>

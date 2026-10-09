@@ -89,11 +89,13 @@ export function renderGroup(el: ElementNode, ctx: TransformContext, options: Gro
 
 /** Ajoute la directive `dsfrFieldsetElement` sur le composant DSFR rendu (après les éventuels TODO). */
 export function asFieldsetElement(html: string, ctx: TransformContext): string {
-  const re = /^((?:\s*<!--(?:(?!-->)[\s\S])*-->)*\s*)<(dsfr-[\w-]+)(?![\w-])/;
+  const re = /^((?:\s*<!--(?:(?!-->)[\s\S])*-->)*\s*)<(dsfr-[\w-]+)(\s*)/;
   if (!re.test(html)) return html;
   ctx.addImport(dsfr('DsfrFieldsetElementDirective'));
-  return html.replace(re, (_m, before: string, tag: string) =>
-    /\sdsfrFieldsetElement[\s>=/]/.test(html) ? `${before}<${tag}` : `${before}<${tag} dsfrFieldsetElement`,
+  if (/\sdsfrFieldsetElement[\s>=/]/.test(html)) return html;
+  // Attributs sur plusieurs lignes : la directive est ajoutée sur sa propre ligne.
+  return html.replace(re, (_m, before: string, tag: string, ws: string) =>
+    ws.includes('\n') ? `${before}<${tag}${ws}dsfrFieldsetElement${ws}` : `${before}<${tag} dsfrFieldsetElement${ws}`,
   );
 }
 
@@ -152,4 +154,34 @@ export function addToStartTag(html: string, attrs: string): string {
 export function reindent(html: string, from: string, to: string): string {
   const delta = to.length - from.length;
   return delta >= 0 ? indentBlock(html, to.slice(from.length) || ' '.repeat(delta)) : dedent(html, -delta);
+}
+
+/** Variation de profondeur des blocs de contrôle (`@for (...) {` / `}`) dans un texte. */
+export function blockDelta(text: string): number {
+  const code = text.replace(/\{\{[\s\S]*?\}\}/g, '');
+  return (code.match(/\{/g) ?? []).length - (code.match(/\}/g) ?? []).length;
+}
+
+/**
+ * Sépare les enfants statiques des parties dynamiques (blocs @for / @if, *ngFor, *ngIf).
+ * `dynamic` contient le code d'origine des parties dynamiques.
+ */
+export function splitControlFlow(el: ElementNode, ctx: TransformContext): { elements: ElementNode[]; dynamic: string } {
+  let depth = 0;
+  const elements: ElementNode[] = [];
+  let dynamic = '';
+  for (const child of el.children) {
+    if (child.type === 'text') {
+      const delta = blockDelta(child.value);
+      if (depth > 0 || delta !== 0 || /@(for|if|else|switch|case|default|defer)\b/.test(child.value)) dynamic += ctx.raw(child);
+      depth += delta;
+    } else if (child.type === 'comment') {
+      if (depth > 0) dynamic += ctx.raw(child);
+    } else if (depth > 0 || child.attrs.some((a) => a.name.startsWith('*'))) {
+      dynamic += ` ${ctx.raw(child)} `;
+    } else {
+      elements.push(child);
+    }
+  }
+  return { elements, dynamic: dynamic.replace(/\s+/g, ' ').trim() };
 }

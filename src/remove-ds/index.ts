@@ -2,7 +2,7 @@ import { chain, Rule, SchematicContext, SchematicsException, Tree } from '@angul
 import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
 import { updateWorkspace } from '@schematics/angular/utility';
 import { normalizePrefix, TODO_MARKER } from '../core/template-migrator';
-import { collectFiles } from '../core/ts/project-migrator';
+import { collectFiles, stripHtmlComments } from '../core/ts/project-migrator';
 import {
   applyEdits,
   countIdentifierUsages,
@@ -41,7 +41,7 @@ export function removeDs(options: RemoveDsSchema): Rule {
     const tagRegExp = new RegExp(`<${tagPrefix.replace(/[-]/g, '\\-')}[\\w-]*`, 'gi');
     const remaining = new Map<string, Set<string>>();
     for (const file of sourceFiles) {
-      for (const match of tree.readText(file).matchAll(tagRegExp)) {
+      for (const match of stripHtmlComments(tree.readText(file)).matchAll(tagRegExp)) {
         const set = remaining.get(file) ?? new Set<string>();
         set.add(match[0].slice(1));
         remaining.set(file, set);
@@ -49,12 +49,12 @@ export function removeDs(options: RemoveDsSchema): Rule {
     }
     if (remaining.size) {
       const details = [...remaining].map(([file, tags]) => `  - ${file} : ${[...tags].join(', ')}`).join('\n');
-      if (!options.force) {
+      if (!options.ignoreRemaining) {
         throw new SchematicsException(
-          `Des composants ${ds.name} sont encore utilisés. Lancez d'abord le schematic "migrate" ou utilisez --force :\n${details}`,
+          `Des composants ${ds.name} sont encore utilisés. Lancez d'abord le schematic "migrate" ou utilisez --ignore-remaining :\n${details}`,
         );
       }
-      context.logger.warn(`Des composants ${ds.name} sont encore utilisés (--force) :\n${details}`);
+      context.logger.warn(`Des composants ${ds.name} sont encore utilisés (--ignore-remaining) :\n${details}`);
     }
 
     // 2. Imports TypeScript

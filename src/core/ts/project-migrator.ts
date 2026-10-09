@@ -297,7 +297,7 @@ function needsCustomElementsSchema(
   migration: MigrationDefinition,
   knownSelectors: Set<string>,
 ): boolean {
-  for (const match of template.matchAll(/<([a-zA-Z][\w]*-[\w-]*)/g)) {
+  for (const match of stripHtmlComments(template).matchAll(/<([a-zA-Z][\w]*-[\w-]*)/g)) {
     const tag = match[1].toLowerCase();
     if (ANGULAR_ELEMENTS.has(tag) || knownSelectors.has(tag)) continue;
     if (tag.startsWith(migration.to.tagPrefix)) continue;
@@ -308,5 +308,10 @@ function needsCustomElementsSchema(
 
 function containsTag(content: string, tag: string, prefix: string | undefined): boolean {
   const full = prefix ? `${prefix.replace(/-+$/, '')}-${tag}` : tag;
-  return new RegExp(`<${full}(\\s|>|/)`, 'i').test(content);
+  return new RegExp(`<${full}(\\s|>|/)`, 'i').test(stripHtmlComments(content));
+}
+
+/** Supprime les commentaires HTML (les TODO peuvent citer des balises). */
+export function stripHtmlComments(content: string): string {
+  return content.replace(/<!--[\s\S]*?-->/g, '');
 }

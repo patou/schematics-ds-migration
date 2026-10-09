@@ -6,6 +6,7 @@ import {
   parseHtml,
   textContent,
   elementChildren,
+  walkElements,
 } from './html/parser';
 import {
   AttributeRule,
@@ -164,6 +165,11 @@ class TemplateMigrator {
 
   run(): TemplateMigrationResult {
     const doc = parseHtml(this.source);
+    // Toutes les balises source, y compris celles consommées par une transformation (lion-radio, ...).
+    walkElements(doc.children, (el) => {
+      const sourceName = this.sourceNameOf(el);
+      if (sourceName) this.sourceTags.add(sourceName);
+    });
     const content = doc.children.map((n) => this.render(n)).join('');
     return {
       content,
@@ -190,7 +196,6 @@ class TemplateMigrator {
 
     const mapping = this.byTag.get(node.name.toLowerCase());
     const sourceName = this.sourceNameOf(node);
-    if (sourceName) this.sourceTags.add(sourceName);
 
     if (!mapping) {
       if (sourceName && this.manualDepth === 0) {

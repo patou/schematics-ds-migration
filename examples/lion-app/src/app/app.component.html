@@ -1,0 +1,14 @@
+<app-legacy-banner></app-legacy-banner>
+
+<h1>Démo Lion</h1>
+
+<lion-tabs [selectedIndex]="selectedTab" (selected-changed)="onTabChange($event.target.selectedIndex)">
+  <button slot="tab">Inscription</button>
+  <section slot="panel">
+    <app-registration-form></app-registration-form>
+  </section>
+  <button slot="tab">Catalogue</button>
+  <section slot="panel">
+    <app-catalog></app-catalog>
+  </section>
+</lion-tabs>

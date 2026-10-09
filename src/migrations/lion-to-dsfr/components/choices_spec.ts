@@ -88,6 +88,7 @@ describe('Lion -> DSFR : choix', () => {
       ].join('\n'),
     );
     expect(todos).toHaveLength(3);
+    expect(todos[0]).toContain('<lion-radio *ngFor="let c of colors" [label]="c" [choiceValue]="c"></lion-radio>');
   });
 
   it('lion-radio isolé : migration manuelle', () => {

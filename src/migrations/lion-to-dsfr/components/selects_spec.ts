@@ -51,6 +51,25 @@ describe('Lion -> DSFR : listes déroulantes', () => {
     );
   });
 
+  it('conserve les options statiques et cite le code dynamique complet', () => {
+    const result = lion(
+      [
+        '<lion-select>',
+        '  <select slot="input">',
+        '    <option value="fr">France</option>',
+        '    @for (c of countries; track c.code) {',
+        '      <option [value]="c.code">{{ c.name }}</option>',
+        '    }',
+        '  </select>',
+        '</lion-select>',
+      ].join('\n'),
+    );
+    expect(result.content).toContain(`[options]="[{ label: 'France', value: 'fr' }]"`);
+    expect(result.todos).toEqual([
+      'Options générées dynamiquement : ajoutez-les au tableau [options] dans le composant. Code d’origine : @for (c of countries; track c.code) { <option [value]="c.code">{{ c.name }}</option> }',
+    ]);
+  });
+
   it('signale les attributs du <select> natif', () => {
     expect(todosOf('<lion-select><select slot="input" (change)="c()"></select></lion-select>')[0]).toContain('(change)="c()"');
   });

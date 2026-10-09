@@ -1,0 +1,29 @@
+{
+  "name": "lion-app-prefixed",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Application d’exemple utilisant Lion avec des balises préfixées (my-lion-*) (@lion/ui), à migrer vers le DSFR (ngx-dsfr).",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build"
+  },
+  "dependencies": {
+    "@angular/common": "^20.3.0",
+    "@angular/compiler": "^20.3.0",
+    "@angular/core": "^20.3.0",
+    "@angular/forms": "^20.3.0",
+    "@angular/platform-browser": "^20.3.0",
+    "@angular/router": "^20.3.0",
+    "@lion/ui": "^0.21.1",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.8.0",
+    "zone.js": "~0.15.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^20.3.0",
+    "@angular/cli": "^20.3.0",
+    "@angular/compiler-cli": "^20.3.0",
+    "typescript": "~5.9.0"
+  }
+}

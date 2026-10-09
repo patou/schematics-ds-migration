@@ -9,6 +9,7 @@ import {
   FIELD_ATTRIBUTES,
   renderGroup,
   safeExpression,
+  splitControlFlow,
   textExpression,
 } from '../shared';
 import { FIELD_SLOTS } from './inputs';
@@ -111,7 +112,11 @@ function radioGroup(el: ElementNode, ctx: TransformContext): string {
   const options: string[] = [];
   const rest: ElementNode[] = [];
 
-  for (const child of elementChildren(el)) {
+  const { elements, dynamic } = splitControlFlow(el, ctx);
+  if (dynamic) {
+    ctx.todo(`Options générées dynamiquement : ajoutez-les au tableau [options] dans le composant. Code d’origine : ${dynamic}`);
+  }
+  for (const child of elements) {
     const slot = child.attrs.find((a) => a.name === 'slot')?.value;
     if (slot === 'label' || slot === 'help-text') {
       const attrName = slot === 'label' ? 'label' : 'hint';
@@ -120,12 +125,6 @@ function radioGroup(el: ElementNode, ctx: TransformContext): string {
     }
     if (!ctx.is(child, 'lion-radio')) {
       rest.push(child);
-      continue;
-    }
-    if (child.attrs.some((a) => a.name.startsWith('*'))) {
-      ctx.todo(
-        `Option générée dynamiquement (${shortAttr(child)}) : construisez le tableau [options] dans le composant.`,
-      );
       continue;
     }
     const labelSlot = elementChildren(child).find((c) => c.attrs.some((a) => a.name === 'slot' && a.value === 'label'));

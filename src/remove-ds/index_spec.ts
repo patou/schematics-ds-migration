@@ -54,11 +54,11 @@ describe('remove-ds', () => {
     );
   });
 
-  it('refuse si des composants sont encore utilisés, sauf avec --force', async () => {
+  it('refuse si des composants sont encore utilisés, sauf avec --ignore-remaining', async () => {
     tree.create('/projects/app/src/app/x.html', '<my-lion-input></my-lion-input>');
     await expect(run({ prefix: 'my' })).rejects.toThrow(/my-lion-input/);
     await expect(run()).resolves.toBeTruthy();
-    const result = await run({ prefix: 'my', force: true });
+    const result = await run({ prefix: 'my', ignoreRemaining: true });
     expect(result.readText('/projects/app/src/app/x.html')).toContain('my-lion-input');
   });
 
