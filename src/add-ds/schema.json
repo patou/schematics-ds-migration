@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "SchematicsDsMigrationAddDs",
+  "title": "Ajout d'un design system",
+  "type": "object",
+  "properties": {
+    "ds": {
+      "type": "string",
+      "description": "Design system à ajouter.",
+      "enum": ["dsfr", "lion"],
+      "default": "dsfr",
+      "x-prompt": {
+        "message": "Quel design system voulez-vous ajouter ?",
+        "type": "list",
+        "items": [
+          { "value": "dsfr", "label": "DSFR (@edugouvfr/ngx-dsfr)" },
+          { "value": "lion", "label": "Lion (@lion/ui)" }
+        ]
+      }
+    },
+    "project": {
+      "type": "string",
+      "description": "Nom du projet Angular.",
+      "$default": { "$source": "projectName" }
+    },
+    "skipInstall": {
+      "type": "boolean",
+      "description": "N'exécute pas l'installation des dépendances.",
+      "default": false
+    }
+  },
+  "required": []
+}

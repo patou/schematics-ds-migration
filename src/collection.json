@@ -1,0 +1,20 @@
+{
+  "$schema": "../node_modules/@angular-devkit/schematics/collection-schema.json",
+  "schematics": {
+    "add-ds": {
+      "description": "Ajoute un design system au projet (dépendances, styles et scripts globaux).",
+      "factory": "./add-ds/index#addDs",
+      "schema": "./add-ds/schema.json"
+    },
+    "migrate": {
+      "description": "Migre les composants d'un dossier d'un design system vers un autre.",
+      "factory": "./migrate/index#migrate",
+      "schema": "./migrate/schema.json"
+    },
+    "remove-ds": {
+      "description": "Supprime un design system du projet (dépendances, imports, styles et scripts globaux).",
+      "factory": "./remove-ds/index#removeDs",
+      "schema": "./remove-ds/schema.json"
+    }
+  }
+}

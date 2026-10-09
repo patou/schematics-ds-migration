@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "SchematicsDsMigrationMigrate",
+  "title": "Migration des composants d'un design system vers un autre",
+  "type": "object",
+  "properties": {
+    "from": {
+      "type": "string",
+      "description": "Design system source.",
+      "enum": ["lion"],
+      "default": "lion"
+    },
+    "to": {
+      "type": "string",
+      "description": "Design system cible.",
+      "enum": ["dsfr"],
+      "default": "dsfr"
+    },
+    "path": {
+      "type": "string",
+      "format": "path",
+      "description": "Dossier à migrer (relatif à la racine du workspace). Par défaut : le dossier source du projet.",
+      "x-prompt": "Quel dossier voulez-vous migrer ? (vide = tout le projet)"
+    },
+    "prefix": {
+      "type": "string",
+      "description": "Préfixe des balises du design system source, ex : \"my\" pour <my-lion-button>.",
+      "default": ""
+    },
+    "project": {
+      "type": "string",
+      "description": "Nom du projet Angular.",
+      "$default": { "$source": "projectName" }
+    },
+    "removeCustomElementsSchema": {
+      "type": "boolean",
+      "description": "Supprime CUSTOM_ELEMENTS_SCHEMA des composants standalone quand il n'est plus nécessaire.",
+      "default": true
+    }
+  },
+  "required": []
+}

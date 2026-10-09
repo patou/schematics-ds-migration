@@ -1,0 +1,35 @@
+{
+  "name": "schematics-ds-migration",
+  "version": "0.1.0",
+  "description": "Schematics Angular pour migrer une application d'un design system vers un autre (Lion -> DSFR / ngx-dsfr, ...)",
+  "keywords": [
+    "schematics",
+    "angular",
+    "design-system",
+    "migration",
+    "lion",
+    "dsfr",
+    "ngx-dsfr"
+  ],
+  "license": "MIT",
+  "schematics": "./src/collection.json",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.spec.json --noEmit",
+    "test": "npm run build && vitest run",
+    "test:watch": "npm run build && vitest",
+    "docs": "npm run build && node src/tools/generate-docs.js",
+    "example": "npm run build && node scripts/run-example.mjs"
+  },
+  "dependencies": {
+    "@angular-devkit/core": "^22.2.2",
+    "@angular-devkit/schematics": "^22.2.2",
+    "@schematics/angular": "^22.2.2",
+    "typescript": "~6.0.2"
+  },
+  "devDependencies": {
+    "@angular-devkit/schematics-cli": "^22.2.2",
+    "@types/node": "^24.0.0",
+    "vitest": "^4.0.0"
+  }
+}

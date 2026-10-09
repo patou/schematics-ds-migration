@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "SchematicsDsMigrationRemoveDs",
+  "title": "Suppression d'un design system",
+  "type": "object",
+  "properties": {
+    "ds": {
+      "type": "string",
+      "description": "Design system à supprimer.",
+      "enum": ["lion", "dsfr"],
+      "default": "lion"
+    },
+    "project": {
+      "type": "string",
+      "description": "Nom du projet Angular.",
+      "$default": { "$source": "projectName" }
+    },
+    "prefix": {
+      "type": "string",
+      "description": "Préfixe des balises du design system, ex : \"my\" pour <my-lion-button>.",
+      "default": ""
+    },
+    "force": {
+      "type": "boolean",
+      "description": "Supprime le design system même si des composants sont encore utilisés.",
+      "default": false
+    },
+    "skipInstall": {
+      "type": "boolean",
+      "description": "N'exécute pas l'installation des dépendances.",
+      "default": false
+    }
+  },
+  "required": []
+}

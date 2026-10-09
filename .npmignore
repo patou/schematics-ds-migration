@@ -1,0 +1,9 @@
+# Ignores TypeScript files, but keeps definitions.
+*.ts
+!*.d.ts
+**/*_spec.*
+examples/
+scripts/
+tmp/
+vitest.config.mts
+tsconfig*.json
