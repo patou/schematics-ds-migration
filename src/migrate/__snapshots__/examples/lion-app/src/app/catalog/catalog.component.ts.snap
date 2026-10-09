@@ -1,0 +1,71 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import {
+  DsfrAccordionsGroupComponent,
+  DsfrAccordionComponent,
+  DsfrPaginationComponent,
+  DsfrModalComponent,
+  DsfrButtonComponent,
+  DsfrTooltipDirective,
+} from '@edugouvfr/ngx-dsfr';
+
+interface Product {
+  name: string;
+  description: string;
+}
+
+@Component({
+  imports: [
+    DsfrAccordionsGroupComponent,
+    DsfrAccordionComponent,
+    DsfrPaginationComponent,
+    DsfrModalComponent,
+    DsfrButtonComponent,
+    DsfrTooltipDirective,
+  ],
+  selector: 'app-catalog',
+  template: `
+    <h2>Catalogue</h2>
+
+    <dsfr-accordions-group [ungroup]="true">
+      @for (product of products; track product.name) {
+        <dsfr-accordion heading="{{ product.name }}" headingLevel="H3">
+          <p>{{ product.description }}</p>
+        </dsfr-accordion>
+      }
+    </dsfr-accordions-group>
+
+    <dsfr-accordion heading="Questions fréquentes" [(expanded)]="showFaq">
+      <div>
+        <p>Livraison sous 48 h.</p>
+      </div>
+    </dsfr-accordion>
+
+    <dsfr-pagination [pageCount]="12" [currentPage]="page" (pageSelect)="page = $event"></dsfr-pagination>
+
+    <!-- TODO(ds-migration): Renseignez le titre de la modale (titleModal), obligatoire pour l’accessibilité. -->
+    <dsfr-button ariaControls="dialog-1" label="Nous contacter"></dsfr-button>
+    <dsfr-modal dialogId="dialog-1" titleModal="">
+      <div>
+        <h2>Contact</h2>
+        <p>Écrivez-nous à contact&#64;example.com</p>
+      </div>
+    </dsfr-modal>
+
+    <button tooltip="Les prix sont indiqués TTC." type="button">?</button>
+
+    @if (loading) {
+      <!-- TODO(ds-migration): lion-progress-indicator : pas d’équivalent ngx-dsfr, utilisez l’élément natif <progress> ou [loader]="true" sur <dsfr-button>. -->
+      <lion-progress-indicator></lion-progress-indicator>
+    }
+  `,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+})
+export class CatalogComponent {
+  page = 1;
+  showFaq = false;
+  loading = false;
+  products: Product[] = [
+    { name: 'Vélo', description: 'Vélo de ville.' },
+    { name: 'Casque', description: 'Casque homologué.' },
+  ];
+}

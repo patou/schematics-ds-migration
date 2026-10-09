@@ -1,0 +1,36 @@
+import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import {
+  DsfrFormInputComponent,
+  DsfrFormEmailComponent,
+  DsfrFormSelectComponent,
+  DsfrFormCheckboxComponent,
+  DsfrButtonComponent,
+} from '@edugouvfr/ngx-dsfr';
+
+@Component({
+  selector: 'app-profile',
+  imports: [
+    FormsModule,
+    DsfrFormInputComponent,
+    DsfrFormEmailComponent,
+    DsfrFormSelectComponent,
+    DsfrFormCheckboxComponent,
+    DsfrButtonComponent,
+  ],
+  templateUrl: './profile.component.html',
+})
+export class ProfileComponent {
+  name = '';
+  email = '';
+  theme = 'light';
+  optin = false;
+
+  save(): void {
+    console.log({ name: this.name, email: this.email, theme: this.theme, optin: this.optin });
+  }
+
+  cancel(): void {
+    this.name = '';
+  }
+}

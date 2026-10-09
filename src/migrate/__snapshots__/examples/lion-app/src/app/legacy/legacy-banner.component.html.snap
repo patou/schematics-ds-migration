@@ -1,0 +1,4 @@
+<div *ngIf="visible" class="banner">
+  <p>Ce site évolue vers le Système de Design de l'État.</p>
+  <dsfr-button ariaLabel="Fermer le bandeau" (click)="close()" label="Fermer"></dsfr-button>
+</div>

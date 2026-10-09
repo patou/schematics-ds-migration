@@ -1,0 +1,16 @@
+<app-legacy-banner></app-legacy-banner>
+
+<h1>Démo Lion</h1>
+
+<dsfr-tabs [selectedTabIndex]="selectedTab" (tabIndexSelect)="onTabChange($event)">
+  <dsfr-tab tabId="tab-1" label="Inscription">
+    <section>
+      <app-registration-form></app-registration-form>
+    </section>
+  </dsfr-tab>
+  <dsfr-tab tabId="tab-2" label="Catalogue">
+    <section>
+      <app-catalog></app-catalog>
+    </section>
+  </dsfr-tab>
+</dsfr-tabs>

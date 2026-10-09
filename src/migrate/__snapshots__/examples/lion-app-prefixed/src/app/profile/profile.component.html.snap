@@ -1,0 +1,8 @@
+<form (ngSubmit)="save()">
+  <dsfr-form-input label="Nom" name="name" [(ngModel)]="name"></dsfr-form-input>
+  <dsfr-form-email label="E-mail" name="email" [(ngModel)]="email"></dsfr-form-email>
+  <dsfr-form-select label="Thème" name="theme" [(ngModel)]="theme" [options]="[{ label: 'Clair', value: 'light' }, { label: 'Sombre', value: 'dark' }]"></dsfr-form-select>
+  <dsfr-form-checkbox label="Recevoir les actualités" name="optin" [(ngModel)]="optin"></dsfr-form-checkbox>
+  <dsfr-button (click)="cancel()" label="Annuler"></dsfr-button>
+  <dsfr-button label="Enregistrer" type="submit"></dsfr-button>
+</form>

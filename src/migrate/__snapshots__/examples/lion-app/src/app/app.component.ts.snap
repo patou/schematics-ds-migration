@@ -1,0 +1,24 @@
+import { Component } from '@angular/core';
+import { CatalogComponent } from './catalog/catalog.component';
+import { LegacyModule } from './legacy/legacy.module';
+import { RegistrationFormComponent } from './registration/registration-form.component';
+import { DsfrTabsComponent, DsfrTabComponent } from '@edugouvfr/ngx-dsfr';
+
+@Component({
+  selector: 'app-root',
+  imports: [
+    RegistrationFormComponent,
+    CatalogComponent,
+    LegacyModule,
+    DsfrTabsComponent,
+    DsfrTabComponent,
+  ],
+  templateUrl: './app.component.html',
+})
+export class AppComponent {
+  selectedTab = 0;
+
+  onTabChange(index: number): void {
+    this.selectedTab = index;
+  }
+}

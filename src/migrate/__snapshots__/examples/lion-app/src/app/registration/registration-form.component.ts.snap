@@ -1,0 +1,82 @@
+import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import {
+  DsfrFormFieldsetComponent,
+  DsfrFormInputComponent,
+  DsfrFieldsetElementDirective,
+  DsfrFormEmailComponent,
+  DsfrFormTelComponent,
+  DsfrFormSelectComponent,
+  DsfrFormRadioComponent,
+  DsfrFormCheckboxComponent,
+  DsfrRangeComponent,
+  DsfrUploadComponent,
+  DsfrFormToggleComponent,
+  DsfrButtonComponent,
+} from '@edugouvfr/ngx-dsfr';
+
+interface Registration {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  birthDate: string;
+  country: string;
+  contact: string;
+  newsletter: boolean;
+  terms: boolean;
+  sport: boolean;
+  music: boolean;
+  satisfaction: number;
+  comment: string;
+}
+
+@Component({
+  selector: 'app-registration-form',
+  imports: [
+    FormsModule,
+    DsfrFormFieldsetComponent,
+    DsfrFormInputComponent,
+    DsfrFieldsetElementDirective,
+    DsfrFormEmailComponent,
+    DsfrFormTelComponent,
+    DsfrFormSelectComponent,
+    DsfrFormRadioComponent,
+    DsfrFormCheckboxComponent,
+    DsfrRangeComponent,
+    DsfrUploadComponent,
+    DsfrFormToggleComponent,
+    DsfrButtonComponent,
+  ],
+  templateUrl: './registration-form.component.html',
+})
+export class RegistrationFormComponent {
+  model: Registration = {
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    birthDate: '',
+    country: 'fr',
+    contact: 'email',
+    newsletter: false,
+    terms: false,
+    sport: false,
+    music: false,
+    satisfaction: 5,
+    comment: '',
+  };
+
+  countries = [
+    { code: 'be', name: 'Belgique' },
+    { code: 'ch', name: 'Suisse' },
+  ];
+
+  submit(): void {
+    console.log('Inscription', this.model);
+  }
+
+  onFiles(event: Event): void {
+    console.log('Fichiers', event);
+  }
+}

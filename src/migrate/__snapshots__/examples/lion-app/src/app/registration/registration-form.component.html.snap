@@ -1,0 +1,47 @@
+<!-- TODO(ds-migration): lion-form supprimé : gérez la soumission avec (ngSubmit) et la validation avec Angular Forms. -->
+<form (ngSubmit)="submit()">
+  <!-- TODO(ds-migration): `name` de lion-fieldset (regroupement des valeurs) : utilisez `formGroupName` ou `ngModelGroup`. -->
+  <dsfr-form-fieldset legend="Identité">
+    <dsfr-form-input
+      dsfrFieldsetElement
+      label="Prénom"
+      name="firstName"
+      [(ngModel)]="model.firstName"
+      [required]="true"
+    ></dsfr-form-input>
+    <dsfr-form-input dsfrFieldsetElement label="Nom" hint="Tel qu'indiqué sur votre pièce d'identité" name="lastName" [(ngModel)]="model.lastName"></dsfr-form-input>
+    <!-- TODO(ds-migration): La valeur de <dsfr-form-input type="date"> est une chaîne "AAAA-MM-JJ" (objet Date en Lion) : adaptez le modèle et les validateurs (MinDate, MaxDate, ...). Alternative : <dsfr-date>. -->
+    <dsfr-form-input dsfrFieldsetElement label="Date de naissance" name="birthDate" [(ngModel)]="model.birthDate" type="date"></dsfr-form-input>
+  </dsfr-form-fieldset>
+
+  <dsfr-form-fieldset legend="Contact">
+    <dsfr-form-email dsfrFieldsetElement label="E-mail" name="email" [(ngModel)]="model.email"></dsfr-form-email>
+    <!-- TODO(ds-migration): Régions téléphoniques (`allowed-regions`) non supportées par ngx-dsfr. -->
+    <dsfr-form-tel dsfrFieldsetElement label="Téléphone" name="phone" [(ngModel)]="model.phone"></dsfr-form-tel>
+    <!-- TODO(ds-migration): Options générées dynamiquement : ajoutez-les au tableau [options] dans le composant. Code d’origine : @for (country of countries; track country.code) { <option [value]="country.code">{{ country.name }}</option> } -->
+    <dsfr-form-select dsfrFieldsetElement label="Pays" name="country" [(ngModel)]="model.country" placeholder="Sélectionnez un pays" [options]="[{ label: 'France', value: 'fr' }]"></dsfr-form-select>
+    <dsfr-form-radio dsfrFieldsetElement label="Moyen de contact préféré" name="contact" [(ngModel)]="model.contact" [options]="[{ label: 'E-mail', value: 'email' }, { label: 'Téléphone', value: 'phone' }, { label: 'Courrier', value: 'mail', disabled: true }]"></dsfr-form-radio>
+  </dsfr-form-fieldset>
+
+  <!-- TODO(ds-migration): `name` du groupe : renseignez `name` sur chaque <dsfr-form-checkbox>. -->
+  <dsfr-form-fieldset legend="Centres d'intérêt">
+    <dsfr-form-checkbox dsfrFieldsetElement label="Sport" name="sport" [(ngModel)]="model.sport"></dsfr-form-checkbox>
+    <dsfr-form-checkbox dsfrFieldsetElement label="Musique" name="music" [(ngModel)]="model.music"></dsfr-form-checkbox>
+  </dsfr-form-fieldset>
+
+  <dsfr-range label="Satisfaction" name="satisfaction" [min]="0" [max]="10" suffix="/10" [(ngModel)]="model.satisfaction"></dsfr-range>
+
+  <!-- TODO(ds-migration): `max-rows` (agrandissement automatique) n’existe pas dans ngx-dsfr. -->
+  <dsfr-form-input label="Commentaire" name="comment" [rows]="4" [(ngModel)]="model.comment" type="textarea"></dsfr-form-input>
+
+  <!-- TODO(ds-migration): (file-list-changed) → (fileSelect) : $event est désormais la liste des fichiers sélectionnés. -->
+  <dsfr-upload label="Justificatif" accept=".pdf,.png" (fileSelect)="onFiles($event)"></dsfr-upload>
+
+  <dsfr-form-toggle label="Recevoir la newsletter" name="newsletter" [(ngModel)]="model.newsletter"></dsfr-form-toggle>
+  <dsfr-form-checkbox name="terms" [(ngModel)]="model.terms" label="J'accepte les conditions d'utilisation"></dsfr-form-checkbox>
+
+  <div class="actions">
+    <dsfr-button label="Effacer" type="reset"></dsfr-button>
+    <dsfr-button [disabled]="!model.terms" label="Envoyer" type="submit"></dsfr-button>
+  </div>
+</form>
