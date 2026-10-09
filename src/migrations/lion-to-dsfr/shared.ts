@@ -104,3 +104,25 @@ export function attrExpression(attr: ParsedAttribute | undefined, quote = '"'): 
   if (attr.kind === 'static') return value === undefined ? 'true' : toQuotedLiteral(value, quote);
   return value?.trim();
 }
+
+/**
+ * Convertit un texte de template (avec interpolations éventuelles) en expression :
+ * `France` -> `'France'`, `{{ c.name }}` -> `c.name`, `Prix {{ p }}` -> `` `Prix ${p}` ``.
+ */
+export function textExpression(text: string, quote = '"'): string {
+  const single = /^\{\{((?:(?!\}\})[\s\S])*)\}\}$/.exec(text);
+  if (single) return single[1].trim();
+  if (!text.includes('{{')) return toQuotedLiteral(text, quote);
+  const parts = text.split(/\{\{((?:(?!\}\})[\s\S])*)\}\}/);
+  let out = '`';
+  parts.forEach((part, i) => {
+    out += i % 2 ? `\${${part.trim()}}` : part.replace(/[`\\]/g, '\\$&').replace(/\$\{/g, '\\${');
+  });
+  return out + '`';
+}
+
+/** Entoure de parenthèses une expression contenant un pipe (obligatoire dans un littéral objet/tableau). */
+export function safeExpression<T extends string | undefined>(expr: T): T {
+  if (expr === undefined) return expr;
+  return (/(^|[^|])\|(?!\|)/.test(expr.replace(/'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"/g, "''")) ? `(${expr})` : expr) as T;
+}

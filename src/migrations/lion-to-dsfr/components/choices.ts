@@ -1,7 +1,17 @@
+import { escapeAttributeValue } from '../../../core/html/attribute';
 import { ElementNode, elementChildren } from '../../../core/html/parser';
 import { ComponentMapping } from '../../../core/types';
 import { TransformContext } from '../../../core/template-migrator';
-import { attrExpression, asFieldsetElement, dsfr, eventValue, FIELD_ATTRIBUTES, renderGroup } from '../shared';
+import {
+  attrExpression,
+  asFieldsetElement,
+  dsfr,
+  eventValue,
+  FIELD_ATTRIBUTES,
+  renderGroup,
+  safeExpression,
+  textExpression,
+} from '../shared';
 import { FIELD_SLOTS } from './inputs';
 
 const CHECKED_DOC = 'Valeur initiale : la case est cochée si la valeur du modèle (ngModel / FormControl) est `true`.';
@@ -75,7 +85,7 @@ function checkboxIndeterminate(el: ElementNode, ctx: TransformContext): string {
   const attrs = ctx.convertAttributes(el, CHECKBOX);
   const children = el.children.filter((c) => !(c.type === 'element' && c.attrs.some((a) => a.name === 'slot' && a.value !== 'checkbox')));
   const labelSlot = elementChildren(el).find((c) => c.attrs.some((a) => a.name === 'slot' && a.value === 'label'));
-  if (labelSlot && !attrs.some((a) => /^\s*\[?label\]?=/.test(a))) attrs.push(` label="${ctx.text(labelSlot)}"`);
+  if (labelSlot && !attrs.some((a) => /^\s*\[?label\]?=/.test(a))) attrs.push(` label="${escapeAttributeValue(ctx.text(labelSlot))}"`);
   attrs.push(' [indeterminate]="false"');
   const parent = ctx.buildElement('dsfr-form-checkbox', attrs, el.selfClosing ? undefined : '', el);
   const nested = children
@@ -105,7 +115,7 @@ function radioGroup(el: ElementNode, ctx: TransformContext): string {
     const slot = child.attrs.find((a) => a.name === 'slot')?.value;
     if (slot === 'label' || slot === 'help-text') {
       const attrName = slot === 'label' ? 'label' : 'hint';
-      if (!attrs.some((a) => new RegExp(`^\\s*\\[?${attrName}\\]?=`).test(a))) attrs.push(` ${attrName}="${ctx.text(child)}"`);
+      if (!attrs.some((a) => new RegExp(`^\\s*\\[?${attrName}\\]?=`).test(a))) attrs.push(` ${attrName}="${escapeAttributeValue(ctx.text(child))}"`);
       continue;
     }
     if (!ctx.is(child, 'lion-radio')) {
@@ -119,14 +129,16 @@ function radioGroup(el: ElementNode, ctx: TransformContext): string {
       continue;
     }
     const labelSlot = elementChildren(child).find((c) => c.attrs.some((a) => a.name === 'slot' && a.value === 'label'));
-    const label = attrExpression(ctx.attr(child, 'label')) ?? (labelSlot ? attrExpression({ kind: 'static', name: 'label', raw: { ...labelSlot.attrs[0], value: ctx.text(labelSlot) } }) : undefined);
-    let value = attrExpression(ctx.attr(child, 'choiceValue')) ?? attrExpression(ctx.attr(child, 'modelValue'));
+    const label = safeExpression(
+      attrExpression(ctx.attr(child, 'label')) ?? (labelSlot ? textExpression(ctx.text(labelSlot)) : undefined),
+    );
+    let value = safeExpression(attrExpression(ctx.attr(child, 'choiceValue')) ?? attrExpression(ctx.attr(child, 'modelValue')));
     if (value === undefined) {
       ctx.todo(`Option sans choiceValue (${shortAttr(child)}) : valeur à définir.`);
       value = label ?? "''";
     }
     const parts = [`label: ${label ?? "''"}`, `value: ${value}`];
-    const hint = attrExpression(ctx.attr(child, 'helpText'));
+    const hint = safeExpression(attrExpression(ctx.attr(child, 'helpText')));
     if (hint) parts.push(`hint: ${hint}`);
     const disabled = ctx.attr(child, 'disabled');
     if (disabled && !(disabled.kind === 'static' && disabled.raw.value === 'false')) {

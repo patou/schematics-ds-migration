@@ -200,6 +200,9 @@ class TemplateMigrator {
       }
       return this.renderUnchanged(node);
     }
+    if (!mapping.target && !mapping.transform && this.manualDepth > 0) {
+      return this.renderUnchanged(node);
+    }
 
     return this.withTodos(node, [], (todos) => {
       if (mapping.todo) todos.push(mapping.todo);
