@@ -1,5 +1,8 @@
 import { NGX_DSFR } from '../../design-systems/dsfr';
 import { AttributeRuleInput, ImportSpec } from '../../core/types';
+import { ParsedAttribute, escapeAttributeValue } from '../../core/html/attribute';
+import { ElementNode, HtmlNode, elementChildren } from '../../core/html/parser';
+import { shorten, toQuotedLiteral, TransformContext } from '../../core/template-migrator';
 
 export const FORMS_MODULE: ImportSpec = { name: 'FormsModule', from: '@angular/forms' };
 
@@ -33,3 +36,71 @@ export const INPUT_ATTRIBUTES: Record<string, AttributeRuleInput> = {
   minlength: { to: 'minLength', asProperty: true },
   minLength: { to: 'minLength', asProperty: true },
 };
+
+/** Remplace `$event.target.<prop>` / `$event.detail.<prop>` par `$event`. */
+export function eventValue(prop: string): [string, string][] {
+  return [[`\\$event\\??\\.(target|detail)\\??\\.${prop}\\b`, '$event']];
+}
+
+export interface GroupOptions {
+  /** Balise cible. */
+  target: string;
+  /** Attributs déjà convertis de l'élément. */
+  attrs: string[];
+  /** Slots convertis en attributs : `{ label: 'legend' }`. */
+  slots?: Record<string, string>;
+  /** Rendu personnalisé d'un enfant élément (sinon migration standard). */
+  renderChild?: (child: ElementNode) => string;
+}
+
+/**
+ * Rend un composant "groupe" : les slots texte deviennent des attributs, les autres enfants sont migrés.
+ */
+export function renderGroup(el: ElementNode, ctx: TransformContext, options: GroupOptions): string {
+  const { attrs } = options;
+  const exclude = new Set<HtmlNode>();
+  for (const child of elementChildren(el)) {
+    const slot = child.attrs.find((a) => a.name === 'slot')?.value;
+    if (slot === undefined) continue;
+    exclude.add(child);
+    const attrName = options.slots?.[slot];
+    if (!attrName) {
+      ctx.todo(`Slot "${slot}" de <${el.name}> non pris en charge par <${options.target}> : ${shorten(ctx.raw(child))}`);
+      continue;
+    }
+    const value = ctx.text(child);
+    if (value && !attrs.some((a) => new RegExp(`^\\s*\\[?${attrName}\\]?=`).test(a))) {
+      attrs.push(` ${attrName}="${escapeAttributeValue(value)}"`);
+    }
+  }
+
+  let content = '';
+  const children = el.children;
+  for (let i = 0; i < children.length; i++) {
+    const child = children[i];
+    if (exclude.has(child)) continue;
+    const next = children[i + 1];
+    if (child.type === 'text' && next && exclude.has(next) && /^\s*$/.test(child.value)) continue;
+    content += child.type === 'element' && options.renderChild ? options.renderChild(child) : ctx.render(child);
+  }
+  if (exclude.size && /^\s*$/.test(content)) content = '';
+  return ctx.buildElement(options.target, attrs, el.selfClosing ? undefined : content, el);
+}
+
+/** Ajoute la directive `dsfrFieldsetElement` sur le composant DSFR rendu (après les éventuels TODO). */
+export function asFieldsetElement(html: string, ctx: TransformContext): string {
+  const re = /^((?:\s*<!--(?:(?!-->)[\s\S])*-->)*\s*)<(dsfr-[\w-]+)(?![\w-])/;
+  if (!re.test(html)) return html;
+  ctx.addImport(dsfr('DsfrFieldsetElementDirective'));
+  return html.replace(re, (_m, before: string, tag: string) =>
+    /\sdsfrFieldsetElement[\s>=/]/.test(html) ? `${before}<${tag}` : `${before}<${tag} dsfrFieldsetElement`,
+  );
+}
+
+/** Valeur d'un attribut sous forme d'expression TypeScript (littéral pour une valeur statique). */
+export function attrExpression(attr: ParsedAttribute | undefined, quote = '"'): string | undefined {
+  if (!attr) return undefined;
+  const value = attr.raw.value;
+  if (attr.kind === 'static') return value === undefined ? 'true' : toQuotedLiteral(value, quote);
+  return value?.trim();
+}
