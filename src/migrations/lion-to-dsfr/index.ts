@@ -2,6 +2,7 @@ import { MigrationDefinition } from '../../core/types';
 import { dsfrDesignSystem } from '../../design-systems/dsfr';
 import { lionDesignSystem } from '../../design-systems/lion';
 import { BUTTON_MAPPINGS } from './components/buttons';
+import { INPUT_MAPPINGS } from './components/inputs';
 import { FORMS_MODULE, VALIDATORS_TODO } from './shared';
 
 /**
@@ -13,7 +14,7 @@ export const lionToDsfr: MigrationDefinition = {
   id: 'lion-to-dsfr',
   from: lionDesignSystem,
   to: dsfrDesignSystem,
-  components: [...BUTTON_MAPPINGS],
+  components: [...BUTTON_MAPPINGS, ...INPUT_MAPPINGS],
   commonAttributes: {
     ngDefaultControl: {
       remove: true,
