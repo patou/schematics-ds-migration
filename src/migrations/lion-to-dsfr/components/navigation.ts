@@ -2,7 +2,7 @@ import { escapeAttributeValue } from '../../../core/html/attribute';
 import { ElementNode, elementChildren } from '../../../core/html/parser';
 import { ComponentMapping } from '../../../core/types';
 import { shorten, TransformContext } from '../../../core/template-migrator';
-import { dsfr, eventValue, indentBlock, stripSlot } from '../shared';
+import { dsfr, eventValue, reindent, stripSlot } from '../shared';
 
 interface Pair {
   head: ElementNode;
@@ -43,7 +43,7 @@ function headingText(head: ElementNode, ctx: TransformContext, attr: string): st
 function body(pair: Pair, ctx: TransformContext, slot: string, inner: string): string {
   if (!pair.body) return '';
   const html = stripSlot(ctx.render(pair.body), slot);
-  return `\n${inner}  ${indentBlock(html, '  ')}\n${inner}`;
+  return `\n${inner}  ${reindent(html, ctx.indent(pair.body), `${inner}  `)}\n${inner}`;
 }
 
 function tabs(el: ElementNode, ctx: TransformContext): string {

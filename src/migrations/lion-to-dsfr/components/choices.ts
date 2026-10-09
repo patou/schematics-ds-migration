@@ -205,6 +205,14 @@ const SWITCH: ComponentMapping = {
   notes: ['La valeur du modèle est un booléen.'],
 };
 
+const SWITCH_BUTTON: ComponentMapping = {
+  ...SWITCH,
+  source: 'lion-switch-button',
+  status: 'partial',
+  description: 'Bouton interrupteur sans libellé.',
+  todo: 'lion-switch-button n’a pas de libellé : renseignez label (éventuellement avec [labelSrOnly]="true").',
+};
+
 /** Incrément 3 : cases à cocher, radios, interrupteurs. */
 export const CHOICE_MAPPINGS: ComponentMapping[] = [
   CHECKBOX,
@@ -213,4 +221,5 @@ export const CHOICE_MAPPINGS: ComponentMapping[] = [
   RADIO_GROUP,
   RADIO,
   SWITCH,
+  SWITCH_BUTTON,
 ];

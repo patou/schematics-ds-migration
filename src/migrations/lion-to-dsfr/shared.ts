@@ -142,3 +142,14 @@ export function indentBlock(text: string, pad: string): string {
 export function stripSlot(html: string, name: string): string {
   return html.replace(new RegExp(`\\s+slot=(["'])${name}\\1`), '');
 }
+
+/** Ajoute du texte (attributs) juste après le nom de la première balise d'un élément rendu. */
+export function addToStartTag(html: string, attrs: string): string {
+  return html.replace(/^((?:\s*<!--(?:(?!-->)[\s\S])*-->)*\s*<[\w-]+)/, `$1${attrs}`);
+}
+
+/** Déplace un bloc rendu de l'indentation `from` vers l'indentation `to` (lignes suivant la première). */
+export function reindent(html: string, from: string, to: string): string {
+  const delta = to.length - from.length;
+  return delta >= 0 ? indentBlock(html, to.slice(from.length) || ' '.repeat(delta)) : dedent(html, -delta);
+}

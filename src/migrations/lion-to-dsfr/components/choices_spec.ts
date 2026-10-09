@@ -99,4 +99,10 @@ describe('Lion -> DSFR : choix', () => {
     expect(result.content).toBe('<dsfr-form-toggle label="Notifications" [(ngModel)]="notif"></dsfr-form-toggle>');
     expect(result.imports.map((i) => i.name)).toEqual(['DsfrFormToggleComponent']);
   });
+
+  it('lion-switch-button -> dsfr-form-toggle + TODO libellé', () => {
+    const result = lion('<lion-switch-button [(ngModel)]="on"></lion-switch-button>');
+    expect(result.content).toContain('<dsfr-form-toggle [(ngModel)]="on"></dsfr-form-toggle>');
+    expect(result.todos).toHaveLength(1);
+  });
 });
