@@ -37,7 +37,7 @@ export interface TemplateMigrationResult {
 }
 
 /** Attributs génériques (HTML / Angular) conservés tels quels sur tous les composants. */
-const GENERIC_ATTRIBUTES = new Set([
+export const GENERIC_ATTRIBUTES = new Set([
   'id',
   'class',
   'style',
@@ -56,7 +56,7 @@ const GENERIC_ATTRIBUTES = new Set([
 ]);
 
 /** Événements génériques (DOM / Angular) conservés tels quels. */
-const GENERIC_EVENTS = new Set([
+export const GENERIC_EVENTS = new Set([
   'click',
   'dblclick',
   'focus',
