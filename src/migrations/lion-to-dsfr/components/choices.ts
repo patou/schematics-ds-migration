@@ -4,7 +4,6 @@ import { ComponentMapping } from '../../../core/types';
 import { TransformContext } from '../../../core/template-migrator';
 import {
   attrExpression,
-  asFieldsetElement,
   dsfr,
   eventValue,
   FIELD_ATTRIBUTES,
@@ -13,6 +12,7 @@ import {
   textExpression,
 } from '../shared';
 import { FIELD_SLOTS } from './inputs';
+import { fieldsetChild } from './structure';
 
 const CHECKED_DOC = 'Valeur initiale : la case est cochée si la valeur du modèle (ngModel / FormControl) est `true`.';
 
@@ -44,7 +44,7 @@ function checkboxGroup(el: ElementNode, ctx: TransformContext): string {
     target: 'dsfr-form-fieldset',
     attrs,
     slots: { label: 'legend', 'help-text': 'hint' },
-    renderChild: (child) => asFieldsetElement(ctx.render(child), ctx),
+    renderChild: fieldsetChild(ctx),
   });
 }
 

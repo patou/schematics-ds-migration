@@ -5,6 +5,8 @@ import { BUTTON_MAPPINGS } from './components/buttons';
 import { INPUT_MAPPINGS } from './components/inputs';
 import { CHOICE_MAPPINGS } from './components/choices';
 import { SELECT_MAPPINGS } from './components/selects';
+import { STRUCTURE_MAPPINGS } from './components/structure';
+import { DATE_MAPPINGS } from './components/dates';
 import { FORMS_MODULE, VALIDATORS_TODO } from './shared';
 
 /**
@@ -16,7 +18,7 @@ export const lionToDsfr: MigrationDefinition = {
   id: 'lion-to-dsfr',
   from: lionDesignSystem,
   to: dsfrDesignSystem,
-  components: [...BUTTON_MAPPINGS, ...INPUT_MAPPINGS, ...CHOICE_MAPPINGS, ...SELECT_MAPPINGS],
+  components: [...BUTTON_MAPPINGS, ...INPUT_MAPPINGS, ...CHOICE_MAPPINGS, ...SELECT_MAPPINGS, ...DATE_MAPPINGS, ...STRUCTURE_MAPPINGS],
   commonAttributes: {
     ngDefaultControl: {
       remove: true,

@@ -126,3 +126,9 @@ export function safeExpression<T extends string | undefined>(expr: T): T {
   if (expr === undefined) return expr;
   return (/(^|[^|])\|(?!\|)/.test(expr.replace(/'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"/g, "''")) ? `(${expr})` : expr) as T;
 }
+
+/** Retire `amount` caractères d'indentation en début de chaque ligne (hors première). */
+export function dedent(text: string, amount: number): string {
+  if (amount <= 0) return text;
+  return text.replace(new RegExp(`\\n[ \\t]{1,${amount}}`, 'g'), '\n');
+}
