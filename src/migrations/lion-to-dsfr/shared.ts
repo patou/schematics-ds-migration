@@ -132,3 +132,13 @@ export function dedent(text: string, amount: number): string {
   if (amount <= 0) return text;
   return text.replace(new RegExp(`\\n[ \\t]{1,${amount}}`, 'g'), '\n');
 }
+
+/** Ajoute `pad` au début de chaque ligne (hors première). */
+export function indentBlock(text: string, pad: string): string {
+  return text.replace(/\n(?=[^\n])/g, `\n${pad}`);
+}
+
+/** Supprime l'attribut `slot="name"` de la balise ouvrante d'un élément rendu. */
+export function stripSlot(html: string, name: string): string {
+  return html.replace(new RegExp(`\\s+slot=(["'])${name}\\1`), '');
+}
