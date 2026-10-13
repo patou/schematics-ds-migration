@@ -1,4 +1,6 @@
-export interface AddDsSchema {
+import { VerboseSchema } from '../utility/verbose';
+
+export interface AddDsSchema extends VerboseSchema {
   /** Design system à ajouter (ex : `dsfr`). */
   ds: string;
   /** Projet Angular. */

@@ -5,6 +5,7 @@ import { migrateProject } from '../core/ts/project-migrator';
 import { getMigration } from '../migrations';
 import { resolveProject } from '../utility/project';
 import { MigrateSchema } from './schema';
+import { createVerboseLogger } from '../utility/verbose';
 
 /**
  * Migre les composants d'un dossier du design system source vers le design system cible.
@@ -17,8 +18,10 @@ export function migrate(options: MigrateSchema): Rule {
     } catch (e) {
       throw new SchematicsException((e as Error).message);
     }
+    const verbose = createVerboseLogger(context, options);
     const project = await resolveProject(tree, options.project);
     const path = normalize(options.path?.trim() ? options.path : project.sourceRoot);
+    verbose(`Projet "${project.name}", sourceRoot "${project.sourceRoot}", dossier analysé "${path}".`);
     const dir = tree.getDir(path);
     if (!dir.subfiles.length && !dir.subdirs.length) {
       throw new SchematicsException(`Le dossier "${path}" est vide ou n'existe pas.`);
@@ -33,9 +36,11 @@ export function migrate(options: MigrateSchema): Rule {
       path,
       projectRoot: project.sourceRoot,
       prefix,
+      verbose: options.verbose,
       removeCustomElementsSchema: options.removeCustomElementsSchema,
     });
 
+    for (const message of report.verboseMessages) verbose(message);
     for (const warning of report.warnings) context.logger.warn(warning);
     for (const file of report.files) {
       context.logger.info(`${file.path} : ${file.todos.length} TODO`);

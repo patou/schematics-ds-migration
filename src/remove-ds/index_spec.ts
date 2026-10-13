@@ -62,6 +62,14 @@ describe('remove-ds', () => {
     expect(result.readText('/projects/app/src/app/x.html')).toContain('my-input');
   });
 
+  it('détaille les fichiers analysés en mode verbose', async () => {
+    const messages: string[] = [];
+    const subscription = runner.logger.subscribe((entry) => messages.push(entry.message));
+    await runner.runSchematic('remove-ds', { ds: 'lion', skipInstall: true, verbose: true }, tree);
+    subscription.unsubscribe();
+    expect(messages.some((m) => m.startsWith('[verbose] Projet "app"') && m.includes('<lion-*>'))).toBe(true);
+  });
+
   it('supprime les styles et scripts globaux du DS (dsfr)', async () => {
     let result = await runner.runSchematic('add-ds', { ds: 'dsfr', skipInstall: true }, tree);
     result = await runner.runSchematic('remove-ds', { ds: 'dsfr', skipInstall: true }, result);

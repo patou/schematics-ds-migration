@@ -1,4 +1,6 @@
-export interface MigrateSchema {
+import { VerboseSchema } from '../utility/verbose';
+
+export interface MigrateSchema extends VerboseSchema {
   /** Design system source (ex : `lion`). */
   from: string;
   /** Design system cible (ex : `dsfr`). */

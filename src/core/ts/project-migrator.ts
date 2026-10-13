@@ -24,6 +24,8 @@ export interface ProjectMigrationOptions extends MigrateTemplateOptions {
   path: string;
   /** Dossier racine du projet (pour retrouver les NgModule et les sélecteurs des composants). */
   projectRoot: string;
+  /** Ajoute des informations de diagnostic au rapport. */
+  verbose?: boolean;
   /** Supprime `CUSTOM_ELEMENTS_SCHEMA` quand il n'est plus nécessaire. */
   removeCustomElementsSchema?: boolean;
 }
@@ -37,6 +39,7 @@ export interface ProjectMigrationReport {
   changedFiles: string[];
   files: FileReport[];
   warnings: string[];
+  verboseMessages: string[];
   /** Nombre total de TODO ajoutés. */
   todoCount: number;
 }
@@ -52,7 +55,10 @@ export function migrateProject(
   migration: MigrationDefinition,
   options: ProjectMigrationOptions,
 ): ProjectMigrationReport {
-  const report: ProjectMigrationReport = { changedFiles: [], files: [], warnings: [], todoCount: 0 };
+  const report: ProjectMigrationReport = { changedFiles: [], files: [], warnings: [], verboseMessages: [], todoCount: 0 };
+  const verbose = (message: string) => {
+    if (options.verbose) report.verboseMessages.push(message);
+  };
   const changed = new Set<string>();
   const basePath = normalize(options.path);
   const tsFiles = collectFiles(tree.getDir(basePath), (p) => p.endsWith('.ts') && !p.endsWith('.spec.ts') && !p.endsWith('.d.ts'));
@@ -62,7 +68,22 @@ export function migrateProject(
   const migratedHtml = new Set<string>();
   const pendingModuleImports: { className: string; imports: ImportSpec[]; file: string }[] = [];
 
+  verbose(
+    `Fichiers trouvés dans "${basePath}" : ${tsFiles.length} fichier(s) TypeScript, ${htmlFiles.length} fichier(s) HTML.`,
+  );
+  for (const file of tsFiles) verbose(`TypeScript : ${file}`);
+  for (const file of htmlFiles) verbose(`HTML : ${file}`);
+
+  const reportTemplate = (path: string, result: TemplateMigrationResult) => {
+    const tags =
+      result.sourceTags.length > 0
+        ? `balises source reconnues : ${result.sourceTags.join(', ')}`
+        : 'aucune balise source reconnue';
+    verbose(`${path} : ${tags} ; ${result.changed ? 'conversion produite' : 'aucune conversion nécessaire'}.`);
+  };
+
   const record = (path: string, result: TemplateMigrationResult) => {
+    reportTemplate(path, result);
     if (result.todos.length) {
       report.files.push({ path, todos: result.todos });
       report.todoCount += result.todos.length;
@@ -71,7 +92,10 @@ export function migrateProject(
 
   for (const file of tsFiles) {
     const text = tree.readText(file);
-    if (!text.includes('@Component')) continue;
+    if (!text.includes('@Component')) {
+      verbose(`${file} : ignoré (aucun décorateur @Component).`);
+      continue;
+    }
     const sf = parseSource(file, text);
     const edits: TextEdit[] = [];
     const fileImports: ImportSpec[] = [];
@@ -89,6 +113,7 @@ export function migrateProject(
         const htmlPath = join(dirname(normalize(file)), templateUrl);
         if (!tree.exists(htmlPath)) {
           report.warnings.push(`${file} : template introuvable "${templateUrl}".`);
+          verbose(`${file} (${component.className}) : template externe introuvable "${templateUrl}".`);
           continue;
         }
         result = migrateTemplate(tree.readText(htmlPath), migration, options);
@@ -102,6 +127,7 @@ export function migrateProject(
         const literal = templateProp.initializer;
         if (!ts.isStringLiteral(literal) && !ts.isNoSubstitutionTemplateLiteral(literal)) {
           report.warnings.push(`${file} (${component.className}) : template dynamique non migré.`);
+          verbose(`${file} (${component.className}) : ignoré (template dynamique non pris en charge).`);
           continue;
         }
         result = migrateTemplate(literal.text, migration, options);
@@ -110,7 +136,10 @@ export function migrateProject(
         }
         record(`${file}#${component.className}`, result);
       }
-      if (!result) continue;
+      if (!result) {
+        verbose(`${file} (${component.className}) : ignoré (aucun template statique reconnu).`);
+        continue;
+      }
 
       result.sourceTags.forEach((t) => migratedTags.add(t));
       remainingContent += result.content;
@@ -179,7 +208,10 @@ export function migrateProject(
 
   // Fichiers HTML non rattachés à un composant du dossier.
   for (const htmlPath of htmlFiles) {
-    if (migratedHtml.has(htmlPath)) continue;
+    if (migratedHtml.has(htmlPath)) {
+      verbose(`${htmlPath} : déjà traité via templateUrl.`);
+      continue;
+    }
     const result = migrateTemplate(tree.readText(htmlPath), migration, options);
     if (result.changed) {
       tree.overwrite(htmlPath, result.content);

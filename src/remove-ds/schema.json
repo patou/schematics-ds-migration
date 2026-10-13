@@ -29,6 +29,11 @@
       "type": "boolean",
       "description": "N'exécute pas l'installation des dépendances.",
       "default": false
+    },
+    "verbose": {
+      "type": "boolean",
+      "description": "Affiche le détail de ce qui est analysé et fait.",
+      "default": false
     }
   },
   "required": []

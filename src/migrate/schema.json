@@ -32,6 +32,11 @@
       "description": "Nom du projet Angular.",
       "$default": { "$source": "projectName" }
     },
+    "verbose": {
+      "type": "boolean",
+      "description": "Affiche le détail de ce qui est analysé et fait.",
+      "default": false
+    },
     "removeCustomElementsSchema": {
       "type": "boolean",
       "description": "Supprime CUSTOM_ELEMENTS_SCHEMA des composants standalone quand il n'est plus nécessaire.",

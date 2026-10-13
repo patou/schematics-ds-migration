@@ -17,6 +17,7 @@ import { getDesignSystem } from '../design-systems';
 import { resolveProject } from '../utility/project';
 import { removeGlobalAssets } from '../utility/workspace-assets';
 import { RemoveDsSchema } from './schema';
+import { createVerboseLogger } from '../utility/verbose';
 
 const matches = (patterns: string[], name: string) =>
   patterns.some((p) => (p.endsWith('/') ? name.startsWith(p) : name === p || name.startsWith(`${p}/`)));
@@ -32,12 +33,14 @@ export function removeDs(options: RemoveDsSchema): Rule {
     } catch (e) {
       throw new SchematicsException((e as Error).message);
     }
+    const verbose = createVerboseLogger(context, options);
     const project = await resolveProject(tree, options.project);
     const prefix = normalizePrefix(options.prefix);
     const tagPrefix = applyTagPrefix(ds.tagPrefix, prefix, ds.tagPrefix);
 
     // 1. Balises encore utilisées
     const sourceFiles = collectFiles(tree.getDir(project.sourceRoot), (p) => /\.(html|ts)$/.test(p) && !p.endsWith('.d.ts'));
+    verbose(`Projet "${project.name}" : ${sourceFiles.length} fichier(s) analysé(s) dans "${project.sourceRoot}", balises recherchées : <${tagPrefix}*>.`);
     const tagRegExp = new RegExp(`<${tagPrefix.replace(/[-]/g, '\\-')}[\\w-]*`, 'gi');
     const remaining = new Map<string, Set<string>>();
     for (const file of sourceFiles) {
@@ -60,7 +63,10 @@ export function removeDs(options: RemoveDsSchema): Rule {
     // 2. Imports TypeScript
     for (const file of sourceFiles.filter((f) => f.endsWith('.ts'))) {
       const text = tree.readText(file);
-      if (!ds.importPatterns.some((p) => text.includes(p))) continue;
+      if (!ds.importPatterns.some((p) => text.includes(p))) {
+        verbose(`${file} : aucun import ${ds.name}.`);
+        continue;
+      }
       const sf = parseSource(file, text);
       const edits: TextEdit[] = [];
       for (const imp of listImports(sf)) {
@@ -102,6 +108,9 @@ export function removeDs(options: RemoveDsSchema): Rule {
         }
       }
       if (packagesRemoved) tree.overwrite('/package.json', JSON.stringify(pkg, null, 2) + '\n');
+      else verbose(`package.json : aucune dépendance ${ds.name} trouvée.`);
+    } else {
+      verbose('package.json introuvable.');
     }
     if (packagesRemoved && !options.skipInstall) context.addTask(new NodePackageInstallTask());
 
@@ -114,6 +123,7 @@ export function removeDs(options: RemoveDsSchema): Rule {
           ...removeGlobalAssets(definition, 'scripts', ds.scripts ?? []),
         ];
         removed.forEach((r) => context.logger.info(`angular.json : suppression de ${r}`));
+        if (!removed.length) verbose('angular.json : aucun style ni script du design system à supprimer.');
       }),
     ]);
   };

@@ -1,4 +1,6 @@
-export interface RemoveDsSchema {
+import { VerboseSchema } from '../utility/verbose';
+
+export interface RemoveDsSchema extends VerboseSchema {
   /** Design system à supprimer (ex : `lion`). */
   ds: string;
   /** Projet Angular. */

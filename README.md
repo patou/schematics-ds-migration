@@ -70,6 +70,7 @@ signalé par un commentaire placé au-dessus du composant concerné, par exemple
 | `--to`                         | `dsfr`              | Design system cible.                                                                                          |
 | `--prefix`                     | (vide)              | Remplace le préfixe du design system : avec `my`, `<my-button>` est migré au lieu de `<lion-button>`.         |
 | `--project`                    | projet par défaut   | Projet Angular du workspace.                                                                                  |
+| `--verbose`                    | `false`             | Affiche les fichiers analysés, les balises source reconnues et les raisons d'exclusion (option disponible sur tous les schematics). |
 | `--remove-custom-elements-schema` | `true`           | Retire `CUSTOM_ELEMENTS_SCHEMA` des composants standalone quand il n'est plus nécessaire.                    |
 
 Ce qui est migré :
@@ -90,6 +91,7 @@ Ce qui est migré :
 | `--ds`          | `dsfr`            | Design system à ajouter (`dsfr`, `lion`).         |
 | `--project`     | projet par défaut | Projet Angular du workspace.                      |
 | `--skip-install`| `false`           | N'exécute pas `npm install`.                      |
+| `--verbose`     | `false`           | Affiche le détail de ce qui est fait.             |
 
 #### `remove-ds`
 
@@ -100,6 +102,7 @@ Ce qui est migré :
 | `--ignore-remaining` | `false`           | Supprime le DS même si des balises sont encore utilisées (sinon le schematic s'arrête en erreur). |
 | `--project`          | projet par défaut | Projet Angular du workspace.                                                                   |
 | `--skip-install`     | `false`           | N'exécute pas `npm install`.                                                                   |
+| `--verbose`          | `false`           | Affiche le détail de ce qui est fait.                                                          |
 
 Les imports nommés encore utilisés (ex : `import { LionButton } from '@lion/ui/button.js'`) sont remplacés par un
 commentaire `TODO(ds-migration)`.

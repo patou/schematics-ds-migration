@@ -20,6 +20,14 @@ describe('add-ds', () => {
     expect(runner.tasks.length).toBe(0);
   });
 
+  it('détaille les packages en mode verbose', async () => {
+    const messages: string[] = [];
+    const subscription = runner.logger.subscribe((entry) => messages.push(entry.message));
+    await runner.runSchematic('add-ds', { ds: 'dsfr', skipInstall: true, verbose: true }, await createWorkspace());
+    subscription.unsubscribe();
+    expect(messages.some((m) => m.startsWith('[verbose] Packages : @edugouvfr/ngx-dsfr'))).toBe(true);
+  });
+
   it('est idempotent', async () => {
     let tree = await runner.runSchematic('add-ds', { ds: 'dsfr', skipInstall: true }, await createWorkspace());
     tree = await runner.runSchematic('add-ds', { ds: 'dsfr', skipInstall: true }, tree);

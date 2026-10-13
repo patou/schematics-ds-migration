@@ -147,6 +147,20 @@ describe('migrate', () => {
     expect(result.readText('/projects/app/src/app/p.html')).toBe('<dsfr-button label="A"></dsfr-button>');
   });
 
+  it('affiche les fichiers analysés et les balises reconnues en mode verbose', async () => {
+    tree.create('/projects/app/src/app/p.html', '<lion-button>A</lion-button>');
+    const messages: string[] = [];
+    const subscription = runner.logger.subscribe((entry) => messages.push(entry.message));
+
+    await run({ verbose: true });
+    subscription.unsubscribe();
+
+    expect(messages).toContain('[verbose] HTML : /projects/app/src/app/p.html');
+    expect(messages).toContain(
+      '[verbose] /projects/app/src/app/p.html : balises source reconnues : lion-button ; conversion produite.',
+    );
+  });
+
   it('échoue pour un dossier inexistant ou une migration inconnue', async () => {
     await expect(run({ path: 'nope' })).rejects.toThrow(/vide ou n'existe pas/);
     await expect(run({ to: 'material' })).rejects.toThrow();
