@@ -15,7 +15,7 @@ export async function createWorkspace(): Promise<UnitTestTree> {
   const tree = await ngRunner.runSchematic('workspace', {
     name: 'workspace',
     newProjectRoot: 'projects',
-    version: '22.0.0',
+    version: '19.2.15',
   });
   return ngRunner.runSchematic('application', { name: 'app', skipTests: true, style: 'css', skipInstall: true }, tree);
 }

@@ -17,6 +17,8 @@ La collection propose trois schematics :
 👉 Le [guide de correspondance Lion → DSFR](docs/guides/lion-to-dsfr.md) liste tous les composants et attributs
 convertis. L'[architecture](docs/architecture.md) explique comment ajouter un composant ou un nouveau design system.
 
+> ℹ️ Cette version du schematics est configurée pour fonctionner avec **Angular 19.2.15 maximum** (utilise `@schematics/angular@~19.2.15` et installe `@edugouvfr/ngx-dsfr@^1.18.1`).
+
 ## Installation
 
 ```bash

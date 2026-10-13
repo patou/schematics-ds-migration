@@ -22,14 +22,22 @@
     "example": "npm run build && node scripts/run-example.mjs"
   },
   "dependencies": {
-    "@angular-devkit/core": "^22.2.2",
-    "@angular-devkit/schematics": "^22.2.2",
-    "@schematics/angular": "^22.2.2",
-    "typescript": "~6.0.2"
+    "@angular-devkit/core": "~19.2.15",
+    "@angular-devkit/schematics": "~19.2.15",
+    "@schematics/angular": "~19.2.15",
+    "typescript": "~5.8.2"
   },
   "devDependencies": {
-    "@angular-devkit/schematics-cli": "^22.2.2",
+    "@angular-devkit/schematics-cli": "~19.2.15",
     "@types/node": "^24.0.0",
     "vitest": "^4.0.0"
+  },
+  "peerDependencies": {
+    "@angular/cli": ">=19.0.0 <=19.2.15"
+  },
+  "peerDependenciesMeta": {
+    "@angular/cli": {
+      "optional": true
+    }
   }
 }

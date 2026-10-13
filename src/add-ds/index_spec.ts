@@ -7,8 +7,8 @@ describe('add-ds', () => {
   it('ajoute DSFR : dépendances, styles et scripts', async () => {
     const tree = await runner.runSchematic('add-ds', { ds: 'dsfr', skipInstall: true }, await createWorkspace());
     const pkg = JSON.parse(tree.readText('/package.json'));
-    expect(pkg.dependencies['@edugouvfr/ngx-dsfr']).toBe('^1.20.0');
-    expect(pkg.dependencies['@gouvfr/dsfr']).toBe('~1.15.3');
+    expect(pkg.dependencies['@edugouvfr/ngx-dsfr']).toBe('^1.18.1');
+    expect(pkg.dependencies['@gouvfr/dsfr']).toBe('~1.14.4');
     const angular = JSON.parse(tree.readText('/angular.json'));
     const options = angular.projects.app.architect.build.options;
     expect(options.styles.slice(0, 2)).toEqual([

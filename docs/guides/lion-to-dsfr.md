@@ -7,7 +7,7 @@
   - Packages : `@lion/ui@^0.21.1`
 - **Cible** : DSFR (ngx-dsfr) — Système de Design de l'État français, implémentation Angular @edugouvfr/ngx-dsfr (composants standalone).
   - Documentation : https://www.systeme-de-design.gouv.fr/version-courante/
-  - Packages : `@edugouvfr/ngx-dsfr@^1.20.0`, `@gouvfr/dsfr@~1.15.3`, `uuid@^13.0.0`, `args-parser@^1.3.0`
+  - Packages : `@edugouvfr/ngx-dsfr@^1.18.1`, `@gouvfr/dsfr@~1.14.4`, `uuid@^13.0.0`, `args-parser@^1.3.0`
 
 Les éléments qui ne peuvent pas être convertis automatiquement sont signalés par un commentaire `<!-- TODO(ds-migration): ... -->` ajouté au-dessus du composant.
 

@@ -11,8 +11,8 @@ export const dsfrDesignSystem: DesignSystem = {
     "Système de Design de l'État français, implémentation Angular @edugouvfr/ngx-dsfr (composants standalone).",
   documentation: 'https://www.systeme-de-design.gouv.fr/version-courante/',
   packages: [
-    { name: NGX_DSFR, version: '^1.20.0' },
-    { name: '@gouvfr/dsfr', version: '~1.15.3' },
+    { name: NGX_DSFR, version: '^1.18.1' },
+    { name: '@gouvfr/dsfr', version: '~1.14.4' },
     { name: 'uuid', version: '^13.0.0' },
     { name: 'args-parser', version: '^1.3.0' },
   ],
@@ -25,7 +25,7 @@ export const dsfrDesignSystem: DesignSystem = {
   scripts: ['node_modules/@gouvfr/dsfr/dist/dsfr/dsfr.module.js'],
   tagPrefix: 'dsfr-',
   setupNotes: [
-    "Le DSFR impose l'acceptation de ses conditions d'utilisation : exécutez `npm create @gouvfr/dsfr -- --dsfr-version=1.15.3` (https://www.systeme-de-design.gouv.fr/version-courante/fr/premiers-pas/vous-etes-developpeur/prise-en-main).",
+    "Le DSFR impose l'acceptation de ses conditions d'utilisation : exécutez `npm create @gouvfr/dsfr -- --dsfr-version=1.14.4` (https://www.systeme-de-design.gouv.fr/version-courante/fr/premiers-pas/vous-etes-developpeur/prise-en-main).",
     'Ajoutez les meta tags DSFR et `lang="fr"` dans src/index.html (voir la page "Prise en main" du DSFR).',
     'Documentation des composants ngx-dsfr : https://foad.phm.education.gouv.fr/edugouvfr/ngx-dsfr/',
   ],
