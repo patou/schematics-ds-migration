@@ -170,8 +170,8 @@ export function renderMigrationGuide(migration: MigrationDefinition): string {
       `<!-- ${TODO_MARKER}: ... -->`,
     )} ajouté au-dessus du composant.`,
     '',
-    `Avec l'option ${code('--prefix')} (ex : ${code('my')}), les balises source sont recherchées avec ce préfixe (${code(
-      `<my-${from.tagPrefix}button>`,
+    `Avec l'option ${code('--prefix')} (ex : ${code('my')}), le préfixe du design system est remplacé (${code(
+      `<my-button>`,
     )} au lieu de ${code(`<${from.tagPrefix}button>`)}).`,
     '',
     '## Statuts',

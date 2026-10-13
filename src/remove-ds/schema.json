@@ -17,7 +17,7 @@
     },
     "prefix": {
       "type": "string",
-      "description": "Préfixe des balises du design system, ex : \"my\" pour <my-lion-button>.",
+      "description": "Préfixe remplaçant celui des balises du design system, ex : \"my\" pour <my-button>.",
       "default": ""
     },
     "ignoreRemaining": {

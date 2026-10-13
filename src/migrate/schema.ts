@@ -5,7 +5,7 @@ export interface MigrateSchema {
   to: string;
   /** Dossier à migrer, relatif à la racine du workspace. */
   path?: string;
-  /** Préfixe des balises du DS source (`my` pour `<my-lion-button>`). */
+  /** Préfixe remplaçant celui du DS source (`my` pour `<my-button>`). */
   prefix?: string;
   /** Projet Angular. */
   project?: string;

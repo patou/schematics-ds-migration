@@ -2,7 +2,7 @@
   "name": "lion-app-prefixed",
   "version": "0.0.0",
   "private": true,
-  "description": "Application d’exemple utilisant Lion avec des balises préfixées (my-lion-*) (@lion/ui), à migrer vers le DSFR (ngx-dsfr).",
+  "description": "Application d’exemple utilisant Lion avec des balises préfixées (my-*) (@lion/ui), à migrer vers le DSFR (ngx-dsfr).",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",

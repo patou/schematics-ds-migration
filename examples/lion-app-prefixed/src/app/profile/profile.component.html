@@ -1,11 +1,11 @@
 <form (ngSubmit)="save()">
-  <my-lion-input label="Nom" name="name" [(ngModel)]="name"></my-lion-input>
-  <my-lion-input-email label="E-mail" name="email" [(ngModel)]="email"></my-lion-input-email>
-  <my-lion-select-rich label="Thème" name="theme" [(ngModel)]="theme">
-    <my-lion-option choice-value="light">Clair</my-lion-option>
-    <my-lion-option choice-value="dark">Sombre</my-lion-option>
-  </my-lion-select-rich>
-  <my-lion-checkbox label="Recevoir les actualités" name="optin" [(ngModel)]="optin"></my-lion-checkbox>
-  <my-lion-button (click)="cancel()">Annuler</my-lion-button>
-  <my-lion-button-submit>Enregistrer</my-lion-button-submit>
+  <my-input label="Nom" name="name" [(ngModel)]="name"></my-input>
+  <my-input-email label="E-mail" name="email" [(ngModel)]="email"></my-input-email>
+  <my-select-rich label="Thème" name="theme" [(ngModel)]="theme">
+    <my-option choice-value="light">Clair</my-option>
+    <my-option choice-value="dark">Sombre</my-option>
+  </my-select-rich>
+  <my-checkbox label="Recevoir les actualités" name="optin" [(ngModel)]="optin"></my-checkbox>
+  <my-button (click)="cancel()">Annuler</my-button>
+  <my-button-submit>Enregistrer</my-button-submit>
 </form>

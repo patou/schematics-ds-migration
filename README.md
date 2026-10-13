@@ -68,7 +68,7 @@ signalé par un commentaire placé au-dessus du composant concerné, par exemple
 | `--path`                       | `sourceRoot` du projet | Dossier à migrer (relatif à la racine du workspace).                                                       |
 | `--from`                       | `lion`              | Design system source.                                                                                         |
 | `--to`                         | `dsfr`              | Design system cible.                                                                                          |
-| `--prefix`                     | (vide)              | Préfixe des balises source : avec `my`, `<my-lion-button>` est migré au lieu de `<lion-button>`.              |
+| `--prefix`                     | (vide)              | Remplace le préfixe du design system : avec `my`, `<my-button>` est migré au lieu de `<lion-button>`.         |
 | `--project`                    | projet par défaut   | Projet Angular du workspace.                                                                                  |
 | `--remove-custom-elements-schema` | `true`           | Retire `CUSTOM_ELEMENTS_SCHEMA` des composants standalone quand il n'est plus nécessaire.                    |
 
@@ -96,7 +96,7 @@ Ce qui est migré :
 | Option               | Défaut            | Description                                                                                    |
 | -------------------- | ----------------- | ---------------------------------------------------------------------------------------------- |
 | `--ds`               | `lion`            | Design system à supprimer (`lion`, `dsfr`).                                                    |
-| `--prefix`           | (vide)            | Préfixe des balises du DS (voir `migrate`).                                                    |
+| `--prefix`           | (vide)            | Préfixe remplaçant celui des balises du DS (voir `migrate`).                                   |
 | `--ignore-remaining` | `false`           | Supprime le DS même si des balises sont encore utilisées (sinon le schematic s'arrête en erreur). |
 | `--project`          | projet par défaut | Projet Angular du workspace.                                                                   |
 | `--skip-install`     | `false`           | N'exécute pas `npm install`.                                                                   |
@@ -145,7 +145,7 @@ Les tests utilisent [Vitest](https://vitest.dev/) (`src/**/*_spec.ts`) :
 | Exemple                      | Contenu                                                                                             |
 | ---------------------------- | --------------------------------------------------------------------------------------------------- |
 | `examples/lion-app`          | Formulaire d'inscription complet, catalogue (onglets, accordéon, pagination, dialog...), NgModule.  |
-| `examples/lion-app-prefixed` | Balises préfixées `<my-lion-*>` enregistrées via `customElements.define`.                           |
+| `examples/lion-app-prefixed` | Balises préfixées `<my-*>` enregistrées via `customElements.define`.                                 |
 
 ## Structure
 

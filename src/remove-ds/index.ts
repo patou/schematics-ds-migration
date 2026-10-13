@@ -1,7 +1,7 @@
 import { chain, Rule, SchematicContext, SchematicsException, Tree } from '@angular-devkit/schematics';
 import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
 import { updateWorkspace } from '@schematics/angular/utility';
-import { normalizePrefix, TODO_MARKER } from '../core/template-migrator';
+import { applyTagPrefix, normalizePrefix, TODO_MARKER } from '../core/template-migrator';
 import { collectFiles, stripHtmlComments } from '../core/ts/project-migrator';
 import {
   applyEdits,
@@ -34,7 +34,7 @@ export function removeDs(options: RemoveDsSchema): Rule {
     }
     const project = await resolveProject(tree, options.project);
     const prefix = normalizePrefix(options.prefix);
-    const tagPrefix = (prefix ? `${prefix}-` : '') + ds.tagPrefix;
+    const tagPrefix = applyTagPrefix(ds.tagPrefix, prefix, ds.tagPrefix);
 
     // 1. Balises encore utilisées
     const sourceFiles = collectFiles(tree.getDir(project.sourceRoot), (p) => /\.(html|ts)$/.test(p) && !p.endsWith('.d.ts'));

@@ -1,7 +1,7 @@
 import * as ts from 'typescript';
 import { DirEntry, Tree } from '@angular-devkit/schematics';
 import { dirname, join, normalize } from '@angular-devkit/core';
-import { migrateTemplate, MigrateTemplateOptions, TemplateMigrationResult } from '../template-migrator';
+import { applyTagPrefix, migrateTemplate, MigrateTemplateOptions, TemplateMigrationResult } from '../template-migrator';
 import { ImportSpec, MigrationDefinition } from '../types';
 import {
   addNamedImports,
@@ -158,7 +158,10 @@ export function migrateProject(
       for (const imp of listImports(sf)) {
         if (!imp.sideEffect) continue;
         for (const tag of migratedTags) {
-          if (migration.sourceDefineImport(tag).test(imp.moduleName) && !containsTag(remainingContent, tag, options.prefix)) {
+          if (
+            migration.sourceDefineImport(tag).test(imp.moduleName) &&
+            !containsTag(remainingContent, tag, options.prefix, migration.from.tagPrefix)
+          ) {
             edits.push(removeStatement(sf, imp.statement));
             break;
           }
@@ -306,8 +309,8 @@ function needsCustomElementsSchema(
   return false;
 }
 
-function containsTag(content: string, tag: string, prefix: string | undefined): boolean {
-  const full = prefix ? `${prefix.replace(/-+$/, '')}-${tag}` : tag;
+function containsTag(content: string, tag: string, prefix: string | undefined, sourceTagPrefix: string): boolean {
+  const full = applyTagPrefix(tag, prefix, sourceTagPrefix);
   return new RegExp(`<${full}(\\s|>|/)`, 'i').test(stripHtmlComments(content));
 }
 

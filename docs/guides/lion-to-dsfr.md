@@ -11,7 +11,7 @@
 
 Les éléments qui ne peuvent pas être convertis automatiquement sont signalés par un commentaire `<!-- TODO(ds-migration): ... -->` ajouté au-dessus du composant.
 
-Avec l'option `--prefix` (ex : `my`), les balises source sont recherchées avec ce préfixe (`<my-lion-button>` au lieu de `<lion-button>`).
+Avec l'option `--prefix` (ex : `my`), le préfixe du design system est remplacé (`<my-button>` au lieu de `<lion-button>`).
 
 ## Statuts
 

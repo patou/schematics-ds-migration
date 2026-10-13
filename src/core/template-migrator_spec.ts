@@ -82,6 +82,12 @@ describe('migrateTemplate (moteur générique)', () => {
     expect(html('<a-button>Valider</a-button>')).toBe('<b-button label="Valider"></b-button>');
   });
 
+  it('remplace le préfixe source configuré', () => {
+    const result = migrate('<my-button>Valider</my-button>', 'my');
+    expect(result.content).toBe('<b-button label="Valider"></b-button>');
+    expect(result.sourceTags).toEqual(['a-button']);
+  });
+
   it('conserve les interpolations et échappe les quotes', () => {
     expect(html(`<a-button>{{ 'save' | t }} "x"</a-button>`)).toBe(
       `<b-button label="{{ 'save' | t }} &quot;x&quot;"></b-button>`,
@@ -234,17 +240,17 @@ describe('migrateTemplate (moteur générique)', () => {
 
   describe('préfixe', () => {
     it('migre uniquement les balises préfixées', () => {
-      expect(html('<my-a-button>OK</my-a-button><a-button>KO</a-button>', 'my')).toBe(
+      expect(html('<my-button>OK</my-button><a-button>KO</a-button>', 'my')).toBe(
         '<b-button label="OK"></b-button><a-button>KO</a-button>',
       );
     });
 
     it('accepte un préfixe terminé par un tiret et les transformations personnalisées', () => {
-      expect(html('<my-a-list><my-a-item>Un</my-a-item></my-a-list>', 'my-')).toContain(`[items]="['Un']"`);
+      expect(html('<my-list><my-item>Un</my-item></my-list>', 'my-')).toContain(`[items]="['Un']"`);
     });
 
     it('signale les balises préfixées inconnues', () => {
-      expect(migrate('<my-a-unknown></my-a-unknown>', 'my').sourceTags).toEqual(['a-unknown']);
+      expect(migrate('<my-unknown></my-unknown>', 'my').sourceTags).toEqual(['a-unknown']);
     });
   });
 });

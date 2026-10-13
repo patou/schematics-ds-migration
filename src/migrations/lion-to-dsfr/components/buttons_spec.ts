@@ -51,7 +51,7 @@ describe('Lion -> DSFR : boutons', () => {
   });
 
   it('gère le préfixe', () => {
-    expect(toDsfr('<acme-lion-button-submit>OK</acme-lion-button-submit>', { prefix: 'acme' })).toBe(
+    expect(toDsfr('<acme-button-submit>OK</acme-button-submit>', { prefix: 'acme' })).toBe(
       '<dsfr-button label="OK" type="submit"></dsfr-button>',
     );
   });

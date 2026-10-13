@@ -47,7 +47,7 @@ describe('applications d’exemple', () => {
         expect(pkg.dependencies['@edugouvfr/ngx-dsfr']).toBeDefined();
         expect(pkg.dependencies['@lion/ui']).toBeUndefined();
 
-        const tag = new RegExp(`<${prefix ? `${prefix}-` : ''}lion-`);
+        const tag = new RegExp(`<${prefix ? `${prefix}-` : ''}${prefix ? '' : 'lion-'}`);
         for (const file of files.filter((f) => f.startsWith('src/app/'))) {
           const content = tree.readContent(file);
           expect(content, file).not.toMatch(/from '@lion\/ui|import '@lion\/ui/);

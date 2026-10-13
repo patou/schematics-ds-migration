@@ -21,7 +21,7 @@ import {
 export const TODO_MARKER = 'TODO(ds-migration)';
 
 export interface MigrateTemplateOptions {
-  /** Préfixe des balises du DS source, ex: `my` pour `<my-lion-button>`. */
+  /** Préfixe remplaçant celui du DS source, ex: `my` pour `<my-button>`. */
   prefix?: string;
 }
 
@@ -93,7 +93,7 @@ export interface TransformContext {
   readonly mapping: ComponentMapping;
   readonly source: string;
   readonly prefix: string;
-  /** Balise source préfixée, ex : `lion-tab` -> `my-lion-tab`. */
+  /** Balise source préfixée, ex : `lion-tab` -> `my-tab`. */
   tag(source: string): string;
   /** L'élément est-il le composant source donné (`lion-radio`, ...) ? */
   is(el: HtmlNode, source: string): el is ElementNode;
@@ -181,14 +181,15 @@ class TemplateMigrator {
   }
 
   tag(source: string): string {
-    return this.prefix ? `${this.prefix}-${source}` : source;
+    return applyTagPrefix(source, this.prefix, this.migration.from.tagPrefix);
   }
 
   private sourceNameOf(el: ElementNode): string | undefined {
     const name = el.name.toLowerCase();
-    const prefix = this.tag(this.migration.from.tagPrefix);
+    const sourcePrefix = this.migration.from.tagPrefix;
+    const prefix = this.tag(sourcePrefix);
     if (!name.startsWith(prefix)) return undefined;
-    return this.prefix ? name.slice(this.prefix.length + 1) : name;
+    return this.prefix ? `${sourcePrefix}${name.slice(prefix.length)}` : name;
   }
 
   render(node: HtmlNode): string {
@@ -619,6 +620,13 @@ export function normalizeRule(rule: AttributeRuleInput | undefined): AttributeRu
 
 export function normalizePrefix(prefix: string | undefined): string {
   return (prefix ?? '').trim().replace(/-+$/, '').toLowerCase();
+}
+
+/** Remplace le préfixe du design system sur une balise source. */
+export function applyTagPrefix(tag: string, prefix: string | undefined, sourceTagPrefix: string): string {
+  const normalized = normalizePrefix(prefix);
+  if (!normalized || !tag.startsWith(sourceTagPrefix)) return tag;
+  return `${normalized}-${tag.slice(sourceTagPrefix.length)}`;
 }
 
 function isGenericAttribute(name: string): boolean {

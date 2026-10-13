@@ -142,7 +142,7 @@ describe('migrate', () => {
   });
 
   it('applique le préfixe', async () => {
-    tree.create('/projects/app/src/app/p.html', '<my-lion-button>A</my-lion-button>');
+    tree.create('/projects/app/src/app/p.html', '<my-button>A</my-button>');
     const result = await run({ prefix: 'my' });
     expect(result.readText('/projects/app/src/app/p.html')).toBe('<dsfr-button label="A"></dsfr-button>');
   });

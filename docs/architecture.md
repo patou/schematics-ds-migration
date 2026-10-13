@@ -40,7 +40,7 @@ nouveau design system, nouvelle migration).
 
 `migrateTemplate(html, migration, { prefix })` :
 
-1. parse le template et relève toutes les balises du DS source (préfixe utilisateur compris : `my-lion-*`) ;
+1. parse le template et relève toutes les balises du DS source (préfixe utilisateur compris : `my-*`) ;
 2. pour chaque élément source, cherche le `ComponentMapping` correspondant et le remplace :
    - par la **transformation déclarative** (renommage de la balise, conversion des attributs, slots, contenu) ;
    - ou par une **transformation personnalisée** (`transform`) pour les changements de structure ;
@@ -87,7 +87,7 @@ Une `CustomTransform` reçoit l'élément parsé et un `TransformContext` :
 | `ctx.addImport(spec)`                    | Déclare un import TypeScript.                                           |
 | `ctx.uniqueId('tab')`                    | Identifiant unique dans le template (`tab-1`, `tab-2`...).              |
 | `ctx.text(el)`, `ctx.raw(node)`, `ctx.slotted(el, 'label')`, `ctx.attr(el, 'name')`, `ctx.indent(el)` | Lecture du contenu. |
-| `ctx.tag('lion-tab')`                    | Balise source avec le préfixe utilisateur (`my-lion-tab`).              |
+| `ctx.tag('lion-tab')`                    | Balise source avec le préfixe utilisateur (`my-tab`).                   |
 
 Les helpers propres à une migration sont regroupés dans `src/migrations/<id>/shared.ts` (ex : `renderGroup`,
 `asFieldsetElement`, `splitControlFlow` pour séparer les options statiques des blocs `@for`).

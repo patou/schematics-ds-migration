@@ -3,7 +3,7 @@ export interface RemoveDsSchema {
   ds: string;
   /** Projet Angular. */
   project?: string;
-  /** Préfixe des balises (`my` pour `<my-lion-button>`). */
+  /** Préfixe remplaçant celui des balises (`my` pour `<my-button>`). */
   prefix?: string;
   /** Supprime même si des balises du DS sont encore présentes. */
   ignoreRemaining?: boolean;
